@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxyan.dao.SeriesMapper">
+  <resultMap id="BaseResultMap" type="com.gxyan.pojo.Series">
+    <constructor>
+      <idArg column="series_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="brand_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="series_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    series_id, brand_id, series_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from series
+    where series_id = #{seriesId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from series
+    where series_id = #{seriesId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gxyan.pojo.Series">
+    insert into series (series_id, brand_id, series_name
+      )
+    values (#{seriesId,jdbcType=INTEGER}, #{brandId,jdbcType=INTEGER}, #{seriesName,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.gxyan.pojo.Series">
+    insert into series
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="seriesId != null">
+        series_id,
+      </if>
+      <if test="brandId != null">
+        brand_id,
+      </if>
+      <if test="seriesName != null">
+        series_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="seriesId != null">
+        #{seriesId,jdbcType=INTEGER},
+      </if>
+      <if test="brandId != null">
+        #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="seriesName != null">
+        #{seriesName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gxyan.pojo.Series">
+    update series
+    <set>
+      <if test="brandId != null">
+        brand_id = #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="seriesName != null">
+        series_name = #{seriesName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where series_id = #{seriesId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Series">
+    update series
+    set brand_id = #{brandId,jdbcType=INTEGER},
+      series_name = #{seriesName,jdbcType=VARCHAR}
+    where series_id = #{seriesId,jdbcType=INTEGER}
+  </update>
+</mapper>
