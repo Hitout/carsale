@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxyan.dao.BrandMapper">
+  <resultMap id="BaseResultMap" type="com.gxyan.pojo.Brand">
+    <constructor>
+      <idArg column="brand_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="brand_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List">
+    brand_id, brand_name
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from brand
+    where brand_id = #{brandId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from brand
+    where brand_id = #{brandId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.gxyan.pojo.Brand">
+    insert into brand (brand_id, brand_name)
+    values (#{brandId,jdbcType=INTEGER}, #{brandName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.gxyan.pojo.Brand">
+    insert into brand
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="brandId != null">
+        brand_id,
+      </if>
+      <if test="brandName != null">
+        brand_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="brandId != null">
+        #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="brandName != null">
+        #{brandName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.gxyan.pojo.Brand">
+    update brand
+    <set>
+      <if test="brandName != null">
+        brand_name = #{brandName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where brand_id = #{brandId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Brand">
+    update brand
+    set brand_name = #{brandName,jdbcType=VARCHAR}
+    where brand_id = #{brandId,jdbcType=INTEGER}
+  </update>
+</mapper>
