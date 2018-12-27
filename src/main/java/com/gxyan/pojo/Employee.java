@@ -12,6 +12,8 @@ public class Employee {
 
     private String name;
 
+    private String password;
+
     private String idCard;
 
     private String phone;
@@ -26,10 +28,11 @@ public class Employee {
 
     private String status;
 
-    public Employee(Integer id, Integer role, String name, String idCard, String phone, String gender, Integer age, String salary, Date entryTime, String status) {
+    public Employee(Integer id, Integer role, String name, String password, String idCard, String phone, String gender, Integer age, String salary, Date entryTime, String status) {
         this.id = id;
         this.role = role;
         this.name = name;
+        this.password = password;
         this.idCard = idCard;
         this.phone = phone;
         this.gender = gender;
@@ -65,6 +68,14 @@ public class Employee {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password == null ? null : password.trim();
     }
 
     public String getIdCard() {
