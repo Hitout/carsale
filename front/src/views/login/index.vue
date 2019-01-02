@@ -111,7 +111,16 @@ export default {
           this.loading = true
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
+            if (this.$store.getters.code === 20000) {
+              this.$router.push({ path: this.redirect || '/' })
+            } else {
+              this.$notify({
+                title: '错误',
+                message: this.$store.getters.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           }).catch(() => {
             this.loading = false
           })

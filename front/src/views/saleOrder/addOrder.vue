@@ -42,17 +42,6 @@
           <el-input-number v-model="domain.num" :min="1"/>
         </el-form-item>
       </div>
-      <!-- <el-form-item
-        v-for="(domain, index) in ruleForm.domains"
-        :label="'域名' + index"
-        :key="domain.key"
-        :prop="'domains.' + index + '.value'"
-        :rules="{
-          required: true, message: '域名不能为空', trigger: 'blur'
-        }"
-      >
-        <el-input v-model="domain.value"/><el-button @click.prevent="removeDomain(domain)">删除</el-button>
-      </el-form-item> -->
       <el-form-item>
         <el-button class="el-icon-circle-plus-outline" @click="addDomain"> 添加车辆</el-button>
         <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
@@ -63,20 +52,11 @@
 </template>
 
 <script>
+import { validateIdCard } from '@/utils/validate'
+import { fetchOpt } from '@/api/order'
 
 export default {
   data() {
-    var validID = (rule, value, callback) => {
-      if (value === '' || value === undefined) {
-        callback(new Error('请输入客户身份证号'))
-      } else {
-        var reg = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
-        if (!reg.test(value)) {
-          callback(new Error('请输入正确的身份证号'))
-        }
-        callback()
-      }
-    }
     return {
       ruleForm: {
         customerIdCard: undefined,
@@ -93,7 +73,7 @@ export default {
           { required: true, message: '请选择支付状态', trigger: 'blur' }
         ],
         idCard: [
-          { required: true, validator: validID, trigger: 'blur' }
+          { required: true, validator: validateIdCard, trigger: 'blur' }
         ]
       },
       statusOptions: ['已支付', '未支付', '已取消'],
@@ -296,7 +276,17 @@ export default {
       selectedOptions: []
     }
   },
+  created() {
+    this.getSeriesOpt()
+  },
   methods: {
+    // 获取options
+    getSeriesOpt() {
+      this.listLoading = true
+      fetchOpt().then(response => {
+        this.options = response.data.data
+      })
+    },
 
     // 动态表单
     submitForm(formName) {
@@ -314,7 +304,7 @@ export default {
     },
     removeDomain(item) {
       var index = this.ruleForm.domains.indexOf(item)
-      if (index !== -1) {
+      if (index !== 0) {
         this.ruleForm.domains.splice(index, 1)
       }
     },

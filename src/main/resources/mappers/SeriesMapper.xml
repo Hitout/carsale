@@ -17,6 +17,11 @@
     from series
     where series_id = #{seriesId,jdbcType=INTEGER}
   </select>
+  <select id="selectSeriesByBrand" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from series
+    where brand_id = #{brandId}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from series
     where series_id = #{seriesId,jdbcType=INTEGER}

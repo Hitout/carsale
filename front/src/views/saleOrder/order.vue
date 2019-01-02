@@ -13,7 +13,6 @@
     </div>
 
     <el-table
-      v-loading="listLoading"
       :key="tableKey"
       :data="list"
       fit
@@ -163,6 +162,7 @@ import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+import { validateIdCard } from '@/utils/validate'
 
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
@@ -195,22 +195,21 @@ export default {
     }
   },
   data() {
-    var validID = (rule, value, callback) => {
-      if (value === '' || value === undefined) {
-        callback(new Error('请输入客户身份证号'))
-      } else {
-        var reg = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
-        if (!reg.test(value)) {
-          callback(new Error('请输入正确的身份证号'))
-        }
-        callback()
-      }
-    }
+    // var validID = (rule, value, callback) => {
+    //   if (value === '' || value === undefined) {
+    //     callback(new Error('请输入客户身份证号'))
+    //   } else {
+    //     var reg = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+    //     if (!reg.test(value)) {
+    //       callback(new Error('请输入正确的身份证号'))
+    //     }
+    //     callback()
+    //   }
+    // }
     return {
       tableKey: 0,
       list: null,
       total: 0,
-      listLoading: true,
       listQuery: {
         page: 1,
         limit: 10,
@@ -442,10 +441,9 @@ export default {
       pvData: [],
       rules: {
         color: [{ required: true, message: '必须选择颜色', trigger: 'change' }],
-        // timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
         num: [{ required: true, message: '必须填入数量', trigger: 'blur' }],
         selectedOptions: [{ required: true, message: '必须选择车型', trigger: 'change' }],
-        customerIdCard: [{ required: true, validator: validID, trigger: 'blur' }]
+        customerIdCard: [{ required: true, validator: validateIdCard, trigger: 'blur' }]
       },
       downloadLoading: false,
       details: [{
@@ -472,7 +470,6 @@ export default {
   },
   methods: {
     getList() {
-      this.listLoading = true
       fetchList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total

@@ -1,9 +1,9 @@
 import request from '@/utils/request'
 import Qs from 'qs'
 
-export function loginByUsername(userId, password) {
+export function loginByUsername(employeeId, password) {
   const data = {
-    userId,
+    employeeId,
     password
   }
   return request({

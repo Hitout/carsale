@@ -9,6 +9,7 @@ const service = axios.create({
   timeout: 5000 // request timeout
 })
 service.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+service.defaults.withCredentials = true
 
 // request interceptor
 service.interceptors.request.use(
@@ -37,7 +38,7 @@ service.interceptors.response.use(
    * 以下代码均为样例，请结合自生需求加以修改，若不需要，则可删除
    */
   response => {
-    const res = response
+    const res = response.data
     if (res.code !== 20000) {
       Message({
         message: res.message,

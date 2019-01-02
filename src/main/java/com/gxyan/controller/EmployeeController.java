@@ -4,13 +4,18 @@ import com.gxyan.common.Const;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Employee;
 import com.gxyan.service.IUserService;
+import com.gxyan.util.CookieUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author gxyan
@@ -25,12 +30,16 @@ public class EmployeeController {
     private IUserService userService;
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public ServerResponse<Employee> login(String userId, String password, HttpSession session) {
-        ServerResponse<Employee> response = userService.login(Integer.valueOf(userId), password);
+    public ServerResponse login( String employeeId, String password, HttpSession session) {
+        ServerResponse response = userService.login(Integer.valueOf(employeeId), password);
         if (response.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER, response.getData());
+
+            Map<String, String> map = new HashMap <>(1);
+            map.put("token", session.getId());
+            response = ServerResponse.createBySuccess(map);
         }
-        log.info("userId:{}, password:{}, data:{}", userId, password, response.getData());
+        log.info("userId:{}, password:{}, data:{}", employeeId, password, response.getData());
         return response;
     }
 
@@ -47,6 +56,6 @@ public class EmployeeController {
             return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
         }
         log.info("get info:{}",employee.toString());
-        return ServerResponse.createBySuccess();
+        return ServerResponse.createBySuccess(employee);
     }
 }

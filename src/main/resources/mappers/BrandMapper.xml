@@ -16,7 +16,10 @@
     from brand
     where brand_id = #{brandId,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <select id="getBrand" resultMap="BaseResultMap">
+      select * from brand
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from brand
     where brand_id = #{brandId,jdbcType=INTEGER}
   </delete>
