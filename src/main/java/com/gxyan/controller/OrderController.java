@@ -25,9 +25,4 @@ public class OrderController {
     public ServerResponse create() {
         return null;
     }
-
-    @RequestMapping(value = "seriesOpt", method = RequestMethod.POST)
-    public ServerResponse seriesOpt() {
-        return orderService.seriesOpt();
-    }
 }

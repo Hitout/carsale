@@ -10,14 +10,13 @@
       <arg column="id_card" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="phone" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="gender" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="age" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <arg column="salary" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="entry_time" javaType="java.util.Date" jdbcType="DATE" />
       <arg column="status" javaType="java.lang.String" jdbcType="VARCHAR" />
     </constructor>
   </resultMap>
   <sql id="Base_Column_List">
-    id, role, name, password, id_card, phone, gender, age, salary, entry_time, status
+    id, role, name, password, id_card, phone, gender, salary, entry_time, status
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -44,11 +43,11 @@
   <insert id="insert" parameterType="com.gxyan.pojo.Employee">
     insert into employee (id, role, name, 
       password, id_card, phone, 
-      gender, age, salary, 
+      gender, salary,
       entry_time, status)
     values (#{id,jdbcType=INTEGER}, #{role,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{idCard,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
-      #{gender,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER}, #{salary,jdbcType=VARCHAR}, 
+      #{gender,jdbcType=VARCHAR}, #{salary,jdbcType=VARCHAR},
       #{entryTime,jdbcType=DATE}, #{status,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Employee">
@@ -74,9 +73,6 @@
       </if>
       <if test="gender != null">
         gender,
-      </if>
-      <if test="age != null">
-        age,
       </if>
       <if test="salary != null">
         salary,
@@ -110,9 +106,6 @@
       <if test="gender != null">
         #{gender,jdbcType=VARCHAR},
       </if>
-      <if test="age != null">
-        #{age,jdbcType=INTEGER},
-      </if>
       <if test="salary != null">
         #{salary,jdbcType=VARCHAR},
       </if>
@@ -145,9 +138,6 @@
       <if test="gender != null">
         gender = #{gender,jdbcType=VARCHAR},
       </if>
-      <if test="age != null">
-        age = #{age,jdbcType=INTEGER},
-      </if>
       <if test="salary != null">
         salary = #{salary,jdbcType=VARCHAR},
       </if>
@@ -168,7 +158,6 @@
       id_card = #{idCard,jdbcType=VARCHAR},
       phone = #{phone,jdbcType=VARCHAR},
       gender = #{gender,jdbcType=VARCHAR},
-      age = #{age,jdbcType=INTEGER},
       salary = #{salary,jdbcType=VARCHAR},
       entry_time = #{entryTime,jdbcType=DATE},
       status = #{status,jdbcType=VARCHAR}

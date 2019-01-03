@@ -1,6 +1,7 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.Series;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -18,4 +19,6 @@ public interface SeriesMapper {
     int updateByPrimaryKey(Series record);
 
     List<Series> selectSeriesByBrand(Integer brandId);
+
+    Series selectSeriesByBrandIdAndSeriesName(@Param("brandId") Integer brandId,@Param("seriesName") String seriesName);
 }

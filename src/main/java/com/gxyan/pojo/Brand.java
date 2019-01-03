@@ -5,9 +5,12 @@ public class Brand {
 
     private String brandName;
 
-    public Brand(Integer brandId, String brandName) {
+    private String status;
+
+    public Brand(Integer brandId, String brandName, String status) {
         this.brandId = brandId;
         this.brandName = brandName;
+        this.status = status;
     }
 
     public Brand() {
@@ -28,5 +31,13 @@ public class Brand {
 
     public void setBrandName(String brandName) {
         this.brandName = brandName == null ? null : brandName.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

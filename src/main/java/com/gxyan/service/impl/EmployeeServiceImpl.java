@@ -3,7 +3,7 @@ package com.gxyan.service.impl;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.dao.EmployeeMapper;
 import com.gxyan.pojo.Employee;
-import com.gxyan.service.IUserService;
+import com.gxyan.service.IEmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class UserServiceImpl implements IUserService {
+public class EmployeeServiceImpl implements IEmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper;

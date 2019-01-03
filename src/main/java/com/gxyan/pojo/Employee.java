@@ -6,6 +6,7 @@ import java.util.Date;
 
 @ToString
 public class Employee {
+
     private Integer id;
 
     private Integer role;
@@ -20,15 +21,13 @@ public class Employee {
 
     private String gender;
 
-    private Integer age;
-
     private String salary;
 
     private Date entryTime;
 
     private String status;
 
-    public Employee(Integer id, Integer role, String name, String password, String idCard, String phone, String gender, Integer age, String salary, Date entryTime, String status) {
+    public Employee(Integer id, Integer role, String name, String password, String idCard, String phone, String gender, String salary, Date entryTime, String status) {
         this.id = id;
         this.role = role;
         this.name = name;
@@ -36,7 +35,6 @@ public class Employee {
         this.idCard = idCard;
         this.phone = phone;
         this.gender = gender;
-        this.age = age;
         this.salary = salary;
         this.entryTime = entryTime;
         this.status = status;
@@ -100,14 +98,6 @@ public class Employee {
 
     public void setGender(String gender) {
         this.gender = gender == null ? null : gender.trim();
-    }
-
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
     }
 
     public String getSalary() {

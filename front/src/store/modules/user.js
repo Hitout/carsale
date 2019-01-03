@@ -49,9 +49,9 @@ const user = {
     SET_ROLES: (state, roles) => {
       // state.roles = roles
       if (roles === 1) {
-        state.roles = 'editor'
+        state.roles = ['editor']
       } else if (roles === 0) {
-        state.roles = 'admin'
+        state.roles = ['admin']
       }
     }
   },
@@ -89,14 +89,6 @@ const user = {
           const data = response.data.data
 
           if (data) { // 验证返回的roles是否是一个非空数组
-            // console.log('role' + data.role)
-            // if (data.role.valueOf() === 1) {
-            //   commit('SET_ROLES', 'editor')
-            // } else if (data.role.valueOf() === 0) {
-            //   commit('SET_ROLES', 'admin')
-            // } else {
-            //   reject('role error!')
-            // }
             commit('SET_ROLES', data.role)
           } else {
             reject('getInfo: roles must be a non-null array !')
