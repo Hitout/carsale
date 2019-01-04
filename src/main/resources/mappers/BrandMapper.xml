@@ -17,12 +17,12 @@
     from brand
     where brand_id = #{brandId,jdbcType=INTEGER}
   </select>
-    <select id="getBrand" resultMap="BaseResultMap">
-      select
-      <include refid="Base_Column_List"/>
-      from brand
-      where status = 1
-    </select>
+  <select id="getBrand" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from brand
+    where status = 1
+  </select>
   <select id="selectByBrandName" resultMap="BaseResultMap" parameterType="string">
     select
     <include refid="Base_Column_List"/>
@@ -34,8 +34,10 @@
     where brand_id = #{brandId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.Brand">
-    insert into brand (brand_id, brand_name, status)
-    values (#{brandId,jdbcType=INTEGER}, #{brandName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR})
+    insert into brand (brand_id, brand_name, status
+      )
+    values (#{brandId,jdbcType=INTEGER}, #{brandName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Brand">
     insert into brand

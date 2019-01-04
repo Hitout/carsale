@@ -24,21 +24,21 @@
     where brand_id = #{brandId}
     and status = 1
   </select>
-    <select id="selectSeriesByBrandIdAndSeriesName" resultMap="BaseResultMap">
-      select <include refid="Base_Column_List"/>
-      from series
-      where brand_id = #{brandId}
-      and series_name = #{seriesName}
-    </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <select id="selectSeriesByBrandIdAndSeriesName" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from series
+    where brand_id = #{brandId}
+    and series_name = #{seriesName}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from series
     where series_id = #{seriesId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.Series">
-    insert into series (series_id, brand_id, series_name, status
-      )
-    values (#{seriesId,jdbcType=INTEGER}, #{brandId,jdbcType=INTEGER}, #{seriesName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}
-      )
+    insert into series (series_id, brand_id, series_name, 
+      status)
+    values (#{seriesId,jdbcType=INTEGER}, #{brandId,jdbcType=INTEGER}, #{seriesName,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Series">
     insert into series

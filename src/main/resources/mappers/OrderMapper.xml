@@ -3,8 +3,8 @@
 <mapper namespace="com.gxyan.dao.OrderMapper">
   <resultMap id="BaseResultMap" type="com.gxyan.pojo.Order">
     <constructor>
-      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
-      <arg column="customer_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="customer_id" javaType="java.lang.Long" jdbcType="BIGINT" />
       <arg column="employee_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <arg column="total_price" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
       <arg column="status" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -16,21 +16,21 @@
   <sql id="Base_Column_List">
     id, customer_id, employee_id, total_price, status, create_time, pay_time, update_time
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from order
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from order
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.Order">
     insert into order (id, customer_id, employee_id, 
       total_price, status, create_time, 
       pay_time, update_time)
-    values (#{id,jdbcType=INTEGER}, #{customerId,jdbcType=INTEGER}, #{employeeId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT}, #{employeeId,jdbcType=INTEGER}, 
       #{totalPrice,jdbcType=DECIMAL}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{payTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
@@ -64,10 +64,10 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="customerId != null">
-        #{customerId,jdbcType=INTEGER},
+        #{customerId,jdbcType=BIGINT},
       </if>
       <if test="employeeId != null">
         #{employeeId,jdbcType=INTEGER},
@@ -93,7 +93,7 @@
     update order
     <set>
       <if test="customerId != null">
-        customer_id = #{customerId,jdbcType=INTEGER},
+        customer_id = #{customerId,jdbcType=BIGINT},
       </if>
       <if test="employeeId != null">
         employee_id = #{employeeId,jdbcType=INTEGER},
@@ -114,17 +114,17 @@
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Order">
     update order
-    set customer_id = #{customerId,jdbcType=INTEGER},
+    set customer_id = #{customerId,jdbcType=BIGINT},
       employee_id = #{employeeId,jdbcType=INTEGER},
       total_price = #{totalPrice,jdbcType=DECIMAL},
       status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       pay_time = #{payTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

@@ -24,11 +24,11 @@
     from employee
     where id = #{id,jdbcType=INTEGER}
   </select>
-    <select id="checkUserId" parameterType="int" resultType="java.lang.Integer">
-      select count(1)
-      from employee
-      where id = #{id}
-    </select>
+  <select id="checkUserId" parameterType="int" resultType="java.lang.Integer">
+    select count(1)
+    from employee
+    where id = #{id}
+  </select>
   <select id="selectLogin" resultMap="BaseResultMap" parameterType="map">
     select
     <include refid="Base_Column_List"/>
@@ -43,12 +43,12 @@
   <insert id="insert" parameterType="com.gxyan.pojo.Employee">
     insert into employee (id, role, name, 
       password, id_card, phone, 
-      gender, salary,
-      entry_time, status)
+      gender, salary, entry_time, 
+      status)
     values (#{id,jdbcType=INTEGER}, #{role,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{idCard,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
-      #{gender,jdbcType=VARCHAR}, #{salary,jdbcType=VARCHAR},
-      #{entryTime,jdbcType=DATE}, #{status,jdbcType=VARCHAR})
+      #{gender,jdbcType=VARCHAR}, #{salary,jdbcType=VARCHAR}, #{entryTime,jdbcType=DATE}, 
+      #{status,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Employee">
     insert into employee

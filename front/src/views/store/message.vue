@@ -2,10 +2,16 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.carId" placeholder="车辆编号" style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.title" placeholder="品牌/车系/型号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.carColor" placeholder="颜色" style="width: 120px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <!--<el-input v-model="listQuery.title" placeholder="品牌" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>-->
+      <!--<el-input v-model="listQuery.series" placeholder="车系" style="width: 120px;" class="filter-item" @keyup.enter.native="handleFilter"/>-->
+      <el-select v-model="listQuery.brandId" class="filter-item" placeholder="品牌" style="width: 160px;" @keyup.enter.native="handleFilter">
+        <el-option v-for="item in brandOptions" :key="item.brandId" :label="item.brandName" :value="item.brandId"/>
+      </el-select>
+      <el-select v-model="listQuery.seriesId" class="filter-item" placeholder="车系" style="width: 160px;" @keyup.enter.native="handleFilter">
+        <el-option v-for="item in seriesOptions" :key="item.seriesId" :label="item.seriesName" :value="item.seriesId"/>
+      </el-select>
       <el-select v-model="listQuery.type" placeholder="状态" clearable class="filter-item" style="width: 110px">
-        <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+        <el-option v-for="item in carStatusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
@@ -50,12 +56,11 @@
           <span>￥ 889000</span>
         </template>
       </el-table-column>
-      <el-table-column label="入库数" prop="storeNum" min-width="85px" sortable="custom" align="center">
-        <template slot-scope="scope">
-          <!-- <span>{{ scope.row.carId }}</span> -->
-          <span>30</span>
-        </template>
-      </el-table-column>
+      <!--<el-table-column label="入库数" prop="storeNum" min-width="85px" sortable="custom" align="center">-->
+        <!--<template slot-scope="scope">-->
+          <!--<span>30</span>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
       <el-table-column label="库存数" prop="storeNum" min-width="85px" sortable="custom" align="center">
         <template slot-scope="scope">
           <!-- <span>{{ scope.row.carId }}</span> -->
@@ -81,14 +86,14 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog v-if="checkPermission(['admin'])" :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog v-if="checkPermission(['admin'])" :visible.sync="dialogFormVisible" title="修改库存信息">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px" style="width: 400px; margin-left:50px;">
         <el-form-item label="品牌 & 车系" prop="series">
           <!-- <el-input v-model="ruleForm.series"/> -->
           <el-cascader :options="options" v-model="ruleForm.series" placeholder="品牌/车系" style="width: 220px"/>
         </el-form-item>
-        <el-form-item label="型号" prop="version">
-          <el-input v-model="ruleForm.version"/>
+        <el-form-item label="型号" prop="type">
+          <el-input v-model="ruleForm.type"/>
         </el-form-item>
         <el-form-item label="颜色" prop="color">
           <el-input v-model="ruleForm.color"/>
@@ -105,7 +110,7 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">确认</el-button>
+        <el-button type="primary" @click="updateData">确认</el-button>
       </div>
     </el-dialog>
 
@@ -113,32 +118,24 @@
 </template>
 
 <script>
-import { fetchList, createArticle, updateArticle } from '@/api/article'
+import { fetchList, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import permission from '@/directive/permission/index.js' // 权限判断指令
 import checkPermission from '@/utils/permission' // 权限判断函数
+import { fetchBrand, fetchSeries } from '@/api/init'
 
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
+const carStatusOptions = [
+  { key: '0', display_name: '停售' },
+  { key: '1', display_name: '在售' },
+  { key: '2', display_name: '缺货' }
 ]
 
-// arr to obj ,such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
-
 export default {
-  name: 'ComplexTable',
+  // name: 'ComplexTable',
   components: { Pagination },
   directives: {
-    waves,
-    permission
+    waves
   },
   filters: {
     statusFilter(status) {
@@ -148,9 +145,6 @@ export default {
         deleted: 'danger'
       }
       return statusMap[status]
-    },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
     }
   },
   data() {
@@ -164,14 +158,10 @@ export default {
         limit: 10,
         importance: undefined,
         title: undefined,
-        type: undefined,
-        sort: '+id'
+        type: undefined
       },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
-      sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      statusOptions: ['在售', '缺货', '停售'],
-      showReviewer: false,
+      carStatusOptions,
+      // statusOptions: ['在售', '缺货', '停售'],
       temp: {
         id: undefined,
         importance: 1,
@@ -183,16 +173,10 @@ export default {
       },
       // dialogFormVisible：编辑或添加Form的可见性
       dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
       dialogPvVisible: false,
-      pvData: [],
       ruleForm: {
         series: [],
-        version: '',
+        type: '',
         color: '',
         cost: '',
         price: '',
@@ -200,23 +184,25 @@ export default {
       },
       options: [],
       rules: {
-        series: [
-          { required: true, message: '请输入品牌 & 车系', trigger: 'blur' }
+        seriesId: [
+          { required: true, message: '请输入品牌 & 车系' }
         ],
-        version: [
+        type: [
           { required: true, message: '请输入车辆型号', trigger: 'blur' }
         ],
         color: [
           { required: true, message: '请输入车辆颜色', trigger: 'blur' }
         ],
-        cost: [
-          { required: true, message: '请输入车辆进价', trigger: 'blur' }
-        ],
         price: [
-          { required: true, message: '请输入车辆售价', trigger: 'blur' }
+          { required: true, message: '请输入车辆进价', trigger: 'blur' },
+          { type: 'number', message: '进价必须为数字值' }
         ],
-        num: [
-          { required: true, message: '请输入车辆库存', trigger: 'blur' }
+        salePrice: [
+          { required: true, message: '请输入车辆售价', trigger: 'blur' },
+          { type: 'number', message: '售价必须为数字值' }
+        ],
+        repertory: [
+          { required: true, message: '请输入车辆库存' }
         ]
       },
       downloadLoading: false
@@ -226,6 +212,20 @@ export default {
     this.getList()
   },
   methods: {
+    // 获取series
+    getSeriesOpt() {
+      this.listLoading = true
+      fetchSeries().then(response => {
+        this.options = response.data.data
+      })
+    },
+    // 获取brand
+    getBrandOpt() {
+      this.listLoading = true
+      fetchBrand().then(response => {
+        this.brandOptions = response.data.data
+      })
+    },
     checkPermission,
     getList() {
       this.listLoading = true
@@ -277,36 +277,9 @@ export default {
         type: ''
       }
     },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -335,16 +308,6 @@ export default {
           })
         }
       })
-    },
-    handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
-      })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
     },
     handleDownload() {
       this.downloadLoading = true

@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 public class Order {
-    private Integer id;
+    private Long id;
 
-    private Integer customerId;
+    private Long customerId;
 
     private Integer employeeId;
 
@@ -20,7 +20,7 @@ public class Order {
 
     private Date updateTime;
 
-    public Order(Integer id, Integer customerId, Integer employeeId, BigDecimal totalPrice, String status, Date createTime, Date payTime, Date updateTime) {
+    public Order(Long id, Long customerId, Integer employeeId, BigDecimal totalPrice, String status, Date createTime, Date payTime, Date updateTime) {
         this.id = id;
         this.customerId = customerId;
         this.employeeId = employeeId;
@@ -35,19 +35,19 @@ public class Order {
         super();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

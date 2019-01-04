@@ -33,10 +33,18 @@ export function delSeries(seriesId) {
 }
 
 export function addStore(car) {
-  console.log(car)
+  // console.log(car)
   return request({
     url: '/store/addStore',
+    method: 'post',
+    params: car
+  })
+}
+
+export function fetchList(query) {
+  return request({
+    url: '/article/list',
     method: 'get',
-    params: { car }
+    params: query
   })
 }

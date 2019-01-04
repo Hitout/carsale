@@ -3,13 +3,13 @@ package com.gxyan.dao;
 import com.gxyan.pojo.Customer;
 
 public interface CustomerMapper {
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Long id);
 
     int insert(Customer record);
 
     int insertSelective(Customer record);
 
-    Customer selectByPrimaryKey(Integer id);
+    Customer selectByPrimaryKey(Long id);
 
     int updateByPrimaryKeySelective(Customer record);
 

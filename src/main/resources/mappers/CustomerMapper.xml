@@ -3,7 +3,7 @@
 <mapper namespace="com.gxyan.dao.CustomerMapper">
   <resultMap id="BaseResultMap" type="com.gxyan.pojo.Customer">
     <constructor>
-      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
       <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="phone" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="id_card" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -13,20 +13,20 @@
   <sql id="Base_Column_List">
     id, name, phone, id_card, create_time
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from customer
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from customer
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.Customer">
     insert into customer (id, name, phone, 
       id_card, create_time)
-    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
       #{idCard,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Customer">
@@ -50,7 +50,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -82,7 +82,7 @@
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Customer">
     update customer
@@ -90,6 +90,6 @@
       phone = #{phone,jdbcType=VARCHAR},
       id_card = #{idCard,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

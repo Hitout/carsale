@@ -49,6 +49,6 @@ public class Series {
     }
 
     public void setStatus(String status) {
-        this.status = status;
+        this.status = status == null ? null : status.trim();
     }
 }

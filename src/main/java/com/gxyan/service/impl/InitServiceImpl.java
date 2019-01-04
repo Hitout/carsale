@@ -7,7 +7,6 @@ import com.gxyan.pojo.Brand;
 import com.gxyan.pojo.Series;
 import com.gxyan.service.IInitService;
 import com.gxyan.vo.SeriesTree;
-import com.gxyan.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;

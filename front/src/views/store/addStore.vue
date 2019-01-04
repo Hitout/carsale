@@ -122,6 +122,7 @@ export default {
         brand: ''
       },
       brandOptions: [],
+      seriesOptions: [],
       delBrand: {
         brandId: undefined
       },

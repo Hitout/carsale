@@ -3,29 +3,29 @@
 <mapper namespace="com.gxyan.dao.OrderDetailsMapper">
   <resultMap id="BaseResultMap" type="com.gxyan.pojo.OrderDetails">
     <constructor>
-      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
-      <arg column="order_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
-      <arg column="car_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="order_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="car_id" javaType="java.lang.Long" jdbcType="BIGINT" />
       <arg column="car_number" javaType="java.lang.Integer" jdbcType="INTEGER" />
     </constructor>
   </resultMap>
   <sql id="Base_Column_List">
     id, order_id, car_id, car_number
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from order_details
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from order_details
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.OrderDetails">
     insert into order_details (id, order_id, car_id, 
       car_number)
-    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=BIGINT}, #{orderId,jdbcType=BIGINT}, #{carId,jdbcType=BIGINT}, 
       #{carNumber,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.OrderDetails">
@@ -46,13 +46,13 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="orderId != null">
-        #{orderId,jdbcType=INTEGER},
+        #{orderId,jdbcType=BIGINT},
       </if>
       <if test="carId != null">
-        #{carId,jdbcType=INTEGER},
+        #{carId,jdbcType=BIGINT},
       </if>
       <if test="carNumber != null">
         #{carNumber,jdbcType=INTEGER},
@@ -63,22 +63,22 @@
     update order_details
     <set>
       <if test="orderId != null">
-        order_id = #{orderId,jdbcType=INTEGER},
+        order_id = #{orderId,jdbcType=BIGINT},
       </if>
       <if test="carId != null">
-        car_id = #{carId,jdbcType=INTEGER},
+        car_id = #{carId,jdbcType=BIGINT},
       </if>
       <if test="carNumber != null">
         car_number = #{carNumber,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.OrderDetails">
     update order_details
-    set order_id = #{orderId,jdbcType=INTEGER},
-      car_id = #{carId,jdbcType=INTEGER},
+    set order_id = #{orderId,jdbcType=BIGINT},
+      car_id = #{carId,jdbcType=BIGINT},
       car_number = #{carNumber,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

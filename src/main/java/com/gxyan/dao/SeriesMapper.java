@@ -20,5 +20,5 @@ public interface SeriesMapper {
 
     List<Series> selectSeriesByBrand(Integer brandId);
 
-    Series selectSeriesByBrandIdAndSeriesName(@Param("brandId") Integer brandId,@Param("seriesName") String seriesName);
+    Series selectSeriesByBrandIdAndSeriesName(@Param("brandId") Integer brandId, @Param("seriesName") String seriesName);
 }

@@ -1,15 +1,15 @@
 package com.gxyan.pojo;
 
 public class OrderDetails {
-    private Integer id;
+    private Long id;
 
-    private Integer orderId;
+    private Long orderId;
 
-    private Integer carId;
+    private Long carId;
 
     private Integer carNumber;
 
-    public OrderDetails(Integer id, Integer orderId, Integer carId, Integer carNumber) {
+    public OrderDetails(Long id, Long orderId, Long carId, Integer carNumber) {
         this.id = id;
         this.orderId = orderId;
         this.carId = carId;
@@ -20,27 +20,27 @@ public class OrderDetails {
         super();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public Integer getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Integer orderId) {
+    public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
 
-    public Integer getCarId() {
+    public Long getCarId() {
         return carId;
     }
 
-    public void setCarId(Integer carId) {
+    public void setCarId(Long carId) {
         this.carId = carId;
     }
 

@@ -3,16 +3,22 @@ package com.gxyan.service.impl;
 import com.gxyan.common.Const;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.dao.BrandMapper;
+import com.gxyan.dao.CarMapper;
 import com.gxyan.dao.SeriesMapper;
 import com.gxyan.pojo.Brand;
 import com.gxyan.pojo.Car;
 import com.gxyan.pojo.Series;
 import com.gxyan.service.IStoreService;
+import com.gxyan.vo.StoreList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,6 +33,8 @@ public class StoreServiceImpl implements IStoreService {
     private BrandMapper brandMapper;
     @Autowired
     private SeriesMapper seriesMapper;
+    @Autowired
+    private CarMapper carMapper;
 
     @Override
     public ServerResponse addBrand(String brandName) {
@@ -96,6 +104,7 @@ public class StoreServiceImpl implements IStoreService {
         }
 
         Series series = new Series();
+        series.setBrandId(brandId);
         series.setSeriesName(seriesName);
         int resultCount = seriesMapper.insertSelective(series);
         if (resultCount != 0) {
@@ -118,7 +127,60 @@ public class StoreServiceImpl implements IStoreService {
 
     @Override
     public ServerResponse addStore(Car car) {
+        car.setId(createCarId());
+        car.setStatus(Const.Number.ONE);
+        int resultCount = carMapper.insertSelective(car);
+        if (resultCount != 0) {
+            return ServerResponse.createBySuccess();
+        }
         log.info(car.toString());
-        return ServerResponse.createBySuccess();
+        return ServerResponse.createByErrorMessage("添加失败");
+    }
+
+    @Override
+    public ServerResponse getList(StoreList storeList) {
+        if (storeList.getId() != null) {
+            // 根据id查询
+            Car car = carMapper.selectByPrimaryKey(storeList.getId());
+            if (car == null) {
+                return ServerResponse.createByErrorMessage("库存编号不存在");
+            }
+            List <Car> list = new ArrayList <>(1);
+            list.add(car);
+            return ServerResponse.createBySuccess(list);
+        }
+
+        if (storeList.getBrandId() != null && storeList.getSeriesId() == null) {
+            // 根据brand查询
+            List <Car> list = carMapper.selectByBrandId(storeList.getBrandId());
+            if (list != null) {
+                return ServerResponse.createBySuccess(list);
+            }
+        }
+
+        List<Car> list = carMapper.selectSelective(storeList);
+        if (list != null) {
+            return ServerResponse.createBySuccess(list);
+        }
+        return ServerResponse.createByErrorMessage("获取库存失败");
+    }
+
+    /**
+     * 车辆编号
+     * 格式为：yyMMdd 加 五位递增的数字，数字每天重置为1
+     * @return
+     */
+    private Long createCarId() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
+        String format = dateFormat.format(new Date()) + "00000";
+        Long id = Long.valueOf(format) + (num++);
+        return id;
+    }
+
+    private int num = 4;
+
+    @Scheduled(cron="0 0 0 * * ?")
+    private void clearNum() {
+        num = 1;
     }
 }

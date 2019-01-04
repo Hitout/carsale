@@ -6,7 +6,6 @@ import java.util.Date;
 
 @ToString
 public class Employee {
-
     private Integer id;
 
     private Integer role;
