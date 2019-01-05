@@ -21,4 +21,6 @@ public interface IStoreService {
     ServerResponse addStore(Car car);
 
     ServerResponse getList(StoreList storeList);
+
+    ServerResponse updateStore(Car car);
 }

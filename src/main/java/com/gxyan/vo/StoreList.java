@@ -3,11 +3,13 @@ package com.gxyan.vo;
 import lombok.*;
 
 /**
+ * 接收库存的getList()请求
  * @author gxyan
  * @date 2019/1/4 20:07
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class StoreList {

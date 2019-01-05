@@ -1,6 +1,7 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.Car;
+import com.gxyan.vo.Store;
 import com.gxyan.vo.StoreList;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface CarMapper {
 
     int updateByPrimaryKey(Car record);
 
-    List<Car> selectSelective(StoreList storeList);
+    List<Store> selectSelective(StoreList storeList);
 
     List<Car> selectByBrandId(Integer brandId);
 }

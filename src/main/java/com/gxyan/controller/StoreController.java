@@ -48,6 +48,12 @@ public class StoreController {
 
     @RequestMapping(value = "getList", method = RequestMethod.GET)
     public ServerResponse getList(StoreList storeList) {
+        log.info(storeList.toString());
         return storeService.getList(storeList);
+    }
+
+    @RequestMapping(value = "update", method = RequestMethod.POST)
+    public ServerResponse update(Car car) {
+        return storeService.updateStore(car);
     }
 }

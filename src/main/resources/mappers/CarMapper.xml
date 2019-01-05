@@ -23,22 +23,36 @@
     from car
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <select id="selectSelective" resultMap="BaseResultMap" parameterType="com.gxyan.vo.StoreList">
+  <select id="selectSelective" parameterType="com.gxyan.vo.StoreList" resultType="com.gxyan.vo.Store">
     select
-    <include refid="Base_Column_List"/>
+    id, brand_name brandName, series_name seriesName,
+    car.series_id seriesId, series.brand_id brandId,
+    type, color, price, sale_price salePrice,
+    repertory, create_time createTime, car.status status
     from car
+    inner join series
+    on car.series_id = series.series_id
+    inner join brand
+    on series.brand_id = brand.brand_id
     <where>
-      <if test="seriesId != null">
-        and seriesId = #{seriesId}
-      </if>
-      <if test="status != null">
-        and status = #{status}
+      <choose>
+        <when test="id != null and id != ''">
+          id = #{id}
+        </when>
+        <when test="seriesId != null and seriesId != ''">
+          car.series_id = #{seriesId}
+        </when>
+        <when test="brandId != null and brandId != ''">
+          brand.brand_id = #{brandId}
+        </when>
+      </choose>
+      <if test="status != null and status != ''">
+        and car.status = #{status}
       </if>
     </where>
-    <if test="orderBy != null">
+    <if test="orderBy != null and orderBy != ''">
       order by #{orderBy}
     </if>
-    limit #{page},#{limit}
   </select>
   <select id="selectByBrandId" resultMap="BaseResultMap" parameterType="int">
     select

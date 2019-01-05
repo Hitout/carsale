@@ -42,9 +42,19 @@ export function addStore(car) {
 }
 
 export function fetchList(query) {
+  console.log(query)
   return request({
-    url: '/article/list',
+    url: '/store/getList',
     method: 'get',
     params: query
+  })
+}
+
+export function updateStore(car) {
+  console.log(car)
+  return request({
+    url: '/store/update',
+    method: 'post',
+    params: car
   })
 }

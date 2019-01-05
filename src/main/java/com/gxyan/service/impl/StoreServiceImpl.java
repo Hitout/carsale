@@ -1,5 +1,6 @@
 package com.gxyan.service.impl;
 
+import com.github.pagehelper.PageHelper;
 import com.gxyan.common.Const;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.dao.BrandMapper;
@@ -9,6 +10,8 @@ import com.gxyan.pojo.Brand;
 import com.gxyan.pojo.Car;
 import com.gxyan.pojo.Series;
 import com.gxyan.service.IStoreService;
+import com.gxyan.vo.ListVo;
+import com.gxyan.vo.Store;
 import com.gxyan.vo.StoreList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +68,6 @@ public class StoreServiceImpl implements IStoreService {
     @Override
     public ServerResponse delBrand(Integer brandId) {
         List <Series> seriesList = seriesMapper.selectSeriesByBrand(brandId);
-//        log.info(seriesList.toString());
         if (CollectionUtils.isEmpty(seriesList)) {
             // 品牌没有对应车系，可直接删除
             int result = brandMapper.deleteByPrimaryKey(brandId);
@@ -133,36 +135,31 @@ public class StoreServiceImpl implements IStoreService {
         if (resultCount != 0) {
             return ServerResponse.createBySuccess();
         }
-        log.info(car.toString());
+        log.error(car.toString());
         return ServerResponse.createByErrorMessage("添加失败");
     }
 
     @Override
     public ServerResponse getList(StoreList storeList) {
-        if (storeList.getId() != null) {
-            // 根据id查询
-            Car car = carMapper.selectByPrimaryKey(storeList.getId());
-            if (car == null) {
-                return ServerResponse.createByErrorMessage("库存编号不存在");
-            }
-            List <Car> list = new ArrayList <>(1);
-            list.add(car);
-            return ServerResponse.createBySuccess(list);
-        }
-
-        if (storeList.getBrandId() != null && storeList.getSeriesId() == null) {
-            // 根据brand查询
-            List <Car> list = carMapper.selectByBrandId(storeList.getBrandId());
-            if (list != null) {
-                return ServerResponse.createBySuccess(list);
-            }
-        }
-
-        List<Car> list = carMapper.selectSelective(storeList);
+        List<Store> list = PageHelper.startPage(storeList.getPage(), storeList.getLimit()).doSelectPage(()-> carMapper.selectSelective(storeList));
         if (list != null) {
-            return ServerResponse.createBySuccess(list);
+            ListVo listVo = new ListVo();
+            listVo.setItems(list);
+            listVo.setTotal(PageHelper.count(()->carMapper.selectSelective(storeList)));
+            return ServerResponse.createBySuccess(listVo);
         }
         return ServerResponse.createByErrorMessage("获取库存失败");
+    }
+
+    @Override
+    public ServerResponse updateStore(Car car) {
+        log.info(car.toString());
+        int resultCount = carMapper.updateByPrimaryKeySelective(car);
+        if (resultCount != 0) {
+            return ServerResponse.createBySuccess();
+        }
+        log.error(car.toString());
+        return ServerResponse.createByErrorMessage("更新失败");
     }
 
     /**

@@ -161,49 +161,6 @@ export default {
     }
   },
   data() {
-    // var validateIdCard = (rule, value, callback) => {
-    //   if (value === '' || value === undefined) {
-    //     callback(new Error('请输入身份证号'))
-    //   } else {
-    //     const reg = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
-    //     if (!reg.test(value)) {
-    //       callback(new Error('请输入正确的身份证号'))
-    //     }
-    //     callback()
-    //   }
-    // }
-    // var validateAge = (rule, value, callback) => {
-    //   if (!value) {
-    //     return callback(new Error('年龄不能为空'))
-    //   }
-    //   setTimeout(() => {
-    //     if (!Number.isInteger(value)) {
-    //       callback(new Error('请输入数字值'))
-    //     } else {
-    //       if (value < 18) {
-    //         callback(new Error('必须年满18岁'))
-    //       } else {
-    //         callback()
-    //       }
-    //     }
-    //   }, 1000)
-    // }
-    // var validateSalary = (rule, value, callback) => {
-    //   if (!value) {
-    //     return callback(new Error('请输入员工薪资'))
-    //   }
-    //   setTimeout(() => {
-    //     if (!Number.isInteger(value)) {
-    //       callback(new Error('请输入数字值'))
-    //     } else {
-    //       if (value < 1800) {
-    //         callback(new Error('薪资必须大于1800元'))
-    //       } else {
-    //         callback()
-    //       }
-    //     }
-    //   }, 1000)
-    // }
     return {
       tableKey: 0,
       list: null,
