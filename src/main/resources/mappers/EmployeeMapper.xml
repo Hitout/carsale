@@ -4,13 +4,13 @@
   <resultMap id="BaseResultMap" type="com.gxyan.pojo.Employee">
     <constructor>
       <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
-      <arg column="role" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <arg column="role" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="name" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="password" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="id_card" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="phone" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="gender" javaType="java.lang.String" jdbcType="VARCHAR" />
-      <arg column="salary" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="salary" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
       <arg column="entry_time" javaType="java.util.Date" jdbcType="DATE" />
       <arg column="status" javaType="java.lang.String" jdbcType="VARCHAR" />
     </constructor>
@@ -36,6 +36,34 @@
     where id = #{id}
     and password = #{password}
   </select>
+  <select id="selectSelective" resultType="com.gxyan.pojo.Employee" parameterType="com.gxyan.vo.EmployeeList">
+    select
+    id, role, name, id_card idCard, phone, gender, salary, entry_time entryTime, status
+    from employee
+    <where>
+      <choose>
+        <when test="id != null and id != ''">
+          id = #{id}
+        </when>
+        <when test="phone != null and phone != ''">
+          phone = #{phone}
+        </when>
+        <when test="idCard != null and idCard != ''">
+          idCard = #{idCard}
+        </when>
+        <when test="name != null and name != ''">
+          <bind name="pattern" value="'%' + name + '%'"/>
+          name like #{pattern}
+        </when>
+      </choose>
+      <if test="status != null and status != ''">
+        and status = #{status}
+      </if>
+    </where>
+    <if test="orderBy != null and orderBy != ''">
+      order by ${orderBy}
+    </if>
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from employee
     where id = #{id,jdbcType=INTEGER}
@@ -45,9 +73,9 @@
       password, id_card, phone, 
       gender, salary, entry_time, 
       status)
-    values (#{id,jdbcType=INTEGER}, #{role,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{role,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
       #{password,jdbcType=VARCHAR}, #{idCard,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, 
-      #{gender,jdbcType=VARCHAR}, #{salary,jdbcType=VARCHAR}, #{entryTime,jdbcType=DATE}, 
+      #{gender,jdbcType=VARCHAR}, #{salary,jdbcType=DECIMAL}, #{entryTime,jdbcType=DATE},
       #{status,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Employee">
@@ -89,7 +117,7 @@
         #{id,jdbcType=INTEGER},
       </if>
       <if test="role != null">
-        #{role,jdbcType=INTEGER},
+        #{role,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -107,7 +135,7 @@
         #{gender,jdbcType=VARCHAR},
       </if>
       <if test="salary != null">
-        #{salary,jdbcType=VARCHAR},
+        #{salary,jdbcType=DECIMAL},
       </if>
       <if test="entryTime != null">
         #{entryTime,jdbcType=DATE},
@@ -121,7 +149,7 @@
     update employee
     <set>
       <if test="role != null">
-        role = #{role,jdbcType=INTEGER},
+        role = #{role,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         name = #{name,jdbcType=VARCHAR},
@@ -139,7 +167,7 @@
         gender = #{gender,jdbcType=VARCHAR},
       </if>
       <if test="salary != null">
-        salary = #{salary,jdbcType=VARCHAR},
+        salary = #{salary,jdbcType=DECIMAL},
       </if>
       <if test="entryTime != null">
         entry_time = #{entryTime,jdbcType=DATE},
@@ -152,13 +180,13 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Employee">
     update employee
-    set role = #{role,jdbcType=INTEGER},
+    set role = #{role,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       password = #{password,jdbcType=VARCHAR},
       id_card = #{idCard,jdbcType=VARCHAR},
       phone = #{phone,jdbcType=VARCHAR},
       gender = #{gender,jdbcType=VARCHAR},
-      salary = #{salary,jdbcType=VARCHAR},
+      salary = #{salary,jdbcType=DECIMAL},
       entry_time = #{entryTime,jdbcType=DATE},
       status = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}

@@ -48,9 +48,9 @@ const user = {
     },
     SET_ROLES: (state, roles) => {
       // state.roles = roles
-      if (roles === 1) {
+      if (roles === '1') {
         state.roles = ['editor']
-      } else if (roles === 0) {
+      } else if (roles === '0') {
         state.roles = ['admin']
       }
     }
@@ -83,7 +83,7 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
+          if (response.data.code !== 20000) {
             reject('error get user info')
           }
           const data = response.data.data

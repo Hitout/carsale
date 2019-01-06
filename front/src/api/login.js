@@ -1,36 +1,25 @@
 import request from '@/utils/request'
-import Qs from 'qs'
 
 export function loginByUsername(employeeId, password) {
-  const data = {
-    employeeId,
-    password
-  }
   return request({
-    url: '/employee/login',
+    url: '/user/login',
     method: 'post',
-    transformRequest: [
-      function(data) {
-        return Qs.stringify(data)
-      }],
-    headers: {
-      'deviceCode': 'A95ZEF1-47B5-AC90BF3'
-    },
-    data
+    params: { employeeId, password }
   })
 }
 
 export function logout() {
   return request({
-    url: '/employee/logout',
+    url: '/user/logout',
     method: 'get'
   })
 }
 
 export function getUserInfo(token) {
+  console.log('获取用户信息')
   return request({
-    url: '/employee/info',
-    method: 'get',
+    url: '/user/info',
+    method: 'post',
     params: { token }
   })
 }

@@ -42,7 +42,7 @@ export function addStore(car) {
 }
 
 export function fetchList(query) {
-  console.log(query)
+  // console.log(query)
   return request({
     url: '/store/getList',
     method: 'get',

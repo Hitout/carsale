@@ -1,24 +1,20 @@
 package com.gxyan.controller;
 
-import com.gxyan.common.Const;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Employee;
 import com.gxyan.service.IEmployeeService;
-import lombok.extern.slf4j.Slf4j;
+import com.gxyan.vo.CustomerList;
+import com.gxyan.vo.EmployeeList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author gxyan
- * @date 2018/12/26 20:39
+ * @date 2019/1/6 16:51
  */
-@Slf4j
 @RestController
 @RequestMapping("employee")
 public class EmployeeController {
@@ -26,33 +22,18 @@ public class EmployeeController {
     @Autowired
     private IEmployeeService employeeService;
 
-    @RequestMapping(value = "login", method = RequestMethod.POST)
-    public ServerResponse login( String employeeId, String password, HttpSession session) {
-        ServerResponse response = employeeService.login(Integer.valueOf(employeeId), password);
-        if (response.isSuccess()) {
-            session.setAttribute(Const.CURRENT_USER, response.getData());
-
-            Map<String, String> map = new HashMap <>(1);
-            map.put("token", session.getId());
-            response = ServerResponse.createBySuccess(map);
-        }
-        log.info("userId:{}, password:{}, data:{}", employeeId, password, response.getData());
-        return response;
+    @RequestMapping(value = "addEmployee", method = RequestMethod.POST)
+    public ServerResponse addEmployee(Employee employee) {
+        return employeeService.addEmployee(employee);
     }
 
-    @RequestMapping(value = "logout", method = RequestMethod.GET)
-    public ServerResponse logout(HttpSession session) {
-        session.removeAttribute(Const.CURRENT_USER);
-        return ServerResponse.createBySuccess();
+    @RequestMapping(value = "getList", method = RequestMethod.GET)
+    public ServerResponse getList(EmployeeList employeeList) {
+        return employeeService.getList(employeeList);
     }
 
-    @RequestMapping(value = "info", method = RequestMethod.GET)
-    public ServerResponse<Employee> info(HttpSession session) {
-        Employee employee = (Employee) session.getAttribute(Const.CURRENT_USER);
-        if (employee == null) {
-            return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
-        }
-//        log.info("get info:{}",employee.toString());
-        return ServerResponse.createBySuccess(employee);
+    @RequestMapping(value = "update", method = RequestMethod.POST)
+    public ServerResponse update(Employee employee) {
+        return employeeService.updateEmployee(employee);
     }
 }

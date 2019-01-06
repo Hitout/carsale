@@ -51,17 +51,8 @@
       </if>
     </where>
     <if test="orderBy != null and orderBy != ''">
-      order by #{orderBy}
+      order by ${orderBy}
     </if>
-  </select>
-  <select id="selectByBrandId" resultMap="BaseResultMap" parameterType="int">
-    select
-    <include refid="Base_Column_List"/>
-    from car
-    where series_id in (
-    select series_id from series
-    where brand_id = #{brandId}
-    )
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from car

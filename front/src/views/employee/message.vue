@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.employeeId" placeholder="员工编号" style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.employeeName" placeholder="员工姓名" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.employeeIdCard" placeholder="身份证号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.employeePhone" placeholder="电话号码" style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-select v-model="listQuery.type" placeholder="状态" clearable class="filter-item" style="width: 110px">
-        <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+      <el-input v-model="listQuery.id" placeholder="员工编号" style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.name" placeholder="员工姓名" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.idCard" placeholder="身份证号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.phone" placeholder="电话号码" style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select v-model="listQuery.status" placeholder="状态" clearable class="filter-item" style="width: 110px" @keyup.enter.native="handleFilter">
+        <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
@@ -23,51 +23,47 @@
       @sort-change="sortChange">
       <el-table-column label="员工编号" prop="employeeId" sortable="custom" align="center" min-width="105px">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.employeeId }}</span> -->
-          <span>0000089765</span>
+          <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
       <el-table-column label="姓名" min-width="80px" align="center">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.employeeName }}</span> -->
-          <span>张三丰</span>
+          <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
       <el-table-column label="电话号码" min-width="115px" align="center">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.employeePhone }}</span> -->
-          <span>89898989898</span>
+          <span>{{ scope.row.phone }}</span>
         </template>
       </el-table-column>
       <el-table-column label="性别" align="center" min-width="50px">
         <template slot-scope="scope">
-          <span>男</span>
+          <span>{{ scope.row.gender }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="年龄" align="center" min-width="50px">
-        <template slot-scope="scope">
-          <span>25</span>
-        </template>
-      </el-table-column>
+      <!--<el-table-column label="年龄" align="center" min-width="50px">-->
+      <!--<template slot-scope="scope">-->
+      <!--<span>{{ scope.row.age }}</span>-->
+      <!--</template>-->
+      <!--</el-table-column>-->
       <el-table-column label="身份证号" align="center" min-width="150px">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.employeeIdCard }}</span> -->
-          <span>431762198708133546</span>
+          <span>{{ scope.row.idCard }}</span>
         </template>
       </el-table-column>
       <el-table-column label="薪资/月" sortable="custom" align="center" min-width="105px">
         <template slot-scope="scope">
-          <span>￥ 8000</span>
+          <span>￥ {{ scope.row.salary }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="入职时间" prop="date" sortable="custom" min-width="135px" align="center">
+      <el-table-column label="入职时间" prop="entryTime" sortable="custom" min-width="135px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.entryTime | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" class-name="status-col" min-width="90px">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
+          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status | typeFilter }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="100px" class-name="small-padding fixed-width">
@@ -79,7 +75,7 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :visible.sync="dialogFormVisible" title="修改员工信息">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="temp.name"/>
@@ -96,26 +92,23 @@
             <el-radio label="女"/>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="年龄" prop="age">
-          <el-input v-model.number="temp.age"/>
-        </el-form-item>
+        <!--<el-form-item label="年龄" prop="age">-->
+        <!--<el-input v-model.number="temp.age"/>-->
+        <!--</el-form-item>-->
         <el-form-item label="薪资/月" prop="salary">
           <el-input v-model.number="temp.salary"/>
         </el-form-item>
-        <el-form-item label="入职日期" prop="date">
-          <el-date-picker v-model="temp.date" type="date" placeholder="选择日期" style="width: 100%;"/>
-        </el-form-item>
+        <!--<el-form-item label="入职日期" prop="entryTime">-->
+        <!--<el-date-picker v-model="temp.entryTime" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" style="width: 100%;"/>-->
+        <!--</el-form-item>-->
         <el-form-item label="状态" prop="status">
           <el-select v-model="temp.status" placeholder="请选择">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+            <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
           </el-select>
-        </el-form-item>
-        <el-form-item label="修改密码" prop="checkPass">
-          <el-input v-model="temp.checkPass" type="password" autocomplete="off"/>
         </el-form-item>
         <el-form-item>
           <el-button @click="dialogFormVisible = false">取消</el-button>
-          <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">确认</el-button>
+          <el-button type="primary" @click="updateData">确认</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -124,40 +117,35 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-import { validateIdCard, validateAge, validateSalary } from '@/utils/validate'
+import { validateIdCard, validateSalary } from '@/utils/validate'
+import { fetchList, updateEmployee } from '@/api/employee'
 
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
+const statusOptions = [
+  { key: '1', display_name: '在职' },
+  { key: '0', display_name: '已离职' }
 ]
 
-// arr to obj ,such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
+const statusTypeKeyValue = statusOptions.reduce((acc, cur) => {
   acc[cur.key] = cur.display_name
   return acc
 }, {})
 
 export default {
-  name: 'ComplexTable',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
+        0: 'danger',
+        1: 'success'
       }
       return statusMap[status]
     },
     typeFilter(type) {
-      return calendarTypeKeyValue[type]
+      return statusTypeKeyValue[type]
     }
   },
   data() {
@@ -168,44 +156,26 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 10,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
+        limit: 5,
+        id: undefined,
+        name: undefined,
+        phone: undefined,
+        idCard: undefined,
+        status: undefined,
+        orderBy: undefined
       },
-      importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
-      sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      statusOptions: ['在职', '已离职'],
-      showReviewer: false,
-      // temp: {
-      //   id: undefined,
-      //   importance: 1,
-      //   remark: '',
-      //   timestamp: new Date(),
-      //   title: '',
-      //   type: '',
-      //   status: 'published'
-      // },
-      // dialogFormVisible：编辑或添加Form的可见性
-      dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
-      downloadLoading: false,
+      statusOptions,
       temp: {
+        id: undefined,
         name: '',
         phone: '',
         idCard: '',
         gender: undefined,
-        salary: undefined,
-        date: ''
+        salary: 0,
+        status: undefined
       },
+      dialogFormVisible: false,
+      downloadLoading: false,
       rules: {
         name: [
           { required: true, message: '请输入员工姓名', trigger: 'blur' }
@@ -219,17 +189,11 @@ export default {
         gender: [
           { required: true, message: '请选择员工性别', trigger: 'change' }
         ],
-        date: [
-          { type: 'date', required: true, message: '请选择入职日期', trigger: 'change' }
-        ],
         status: [
           { required: true, message: '请选择员工就职状态', trigger: 'blur' }
         ],
         salary: [
           { validator: validateSalary, required: true, trigger: 'blur' }
-        ],
-        age: [
-          { validator: validateAge, required: true, trigger: 'blur' }
         ]
       }
     }
@@ -241,8 +205,15 @@ export default {
     getList() {
       this.listLoading = true
       fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+        if (response.data.code === 20000) {
+          this.list = response.data.data.items
+          this.total = response.data.data.total
+        } else {
+          this.$message({
+            message: response.data.message,
+            type: 'error'
+          })
+        }
 
         // Just to simulate the time of the request
         setTimeout(() => {
@@ -253,13 +224,6 @@ export default {
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
-    },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作成功',
-        type: 'success'
-      })
-      row.status = status
     },
     sortChange(data) {
       const { prop, order } = data
@@ -277,47 +241,8 @@ export default {
       }
       this.handleFilter()
     },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        status: 'published',
-        type: ''
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -327,40 +252,33 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
-                break
+          tempData.entryTime = null
+          updateEmployee(tempData).then(response => {
+            if (response.data.code === 20000) {
+              for (const v of this.list) {
+                if (v.id === this.temp.id) {
+                  const index = this.list.indexOf(v)
+                  this.list.splice(index, 1, this.temp)
+                  break
+                }
               }
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '错误',
+                message: response.data.message,
+                type: 'error',
+                duration: 2000
+              })
             }
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
           })
         }
-      })
-    },
-    handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
-      })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
       })
     },
     handleDownload() {

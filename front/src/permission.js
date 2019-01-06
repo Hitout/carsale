@@ -26,13 +26,12 @@ router.beforeEach((to, from, next) => {
     } else {
       if (store.getters.roles.length === 0) { // 判断当前用户是否已拉取完user_info信息
         store.dispatch('GetUserInfo').then(res => { // 拉取user_info
-          console.log('拉取user_info')
           const role = res.data.data.role // note: roles must be a array! such as: ['editor','develop']
           // const roles = this.$store.getters.roles // note: roles must be a array! such as: ['editor','develop']
           let roles
-          if (role === 1) {
+          if (role === '1') {
             roles = ['editor']
-          } else if (role === 0) {
+          } else if (role === '0') {
             roles = ['admin']
           }
           store.dispatch('GenerateRoutes', { roles }).then(() => { // 根据roles权限生成可访问的路由表

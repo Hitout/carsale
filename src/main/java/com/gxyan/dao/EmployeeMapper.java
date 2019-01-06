@@ -1,7 +1,10 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.Employee;
+import com.gxyan.vo.EmployeeList;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface EmployeeMapper {
     int deleteByPrimaryKey(Integer id);
@@ -19,4 +22,6 @@ public interface EmployeeMapper {
     int checkUserId(Integer id);
 
     Employee selectLogin(@Param("id") Integer id, @Param("password") String password);
+
+    List<Employee> selectSelective(EmployeeList employeeList);
 }

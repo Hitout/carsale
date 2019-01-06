@@ -1,17 +1,26 @@
 package com.gxyan.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.gxyan.common.Const;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.dao.EmployeeMapper;
+import com.gxyan.pojo.Customer;
 import com.gxyan.pojo.Employee;
 import com.gxyan.service.IEmployeeService;
+import com.gxyan.vo.EmployeeList;
+import com.gxyan.vo.ListVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author gxyan
- * @date 2018/12/27 9:56
+ * @date 2019/1/6 16:55
  */
 @Slf4j
 @Service
@@ -21,18 +30,53 @@ public class EmployeeServiceImpl implements IEmployeeService {
     private EmployeeMapper employeeMapper;
 
     @Override
-    public ServerResponse<Employee> login(Integer userId, String password) {
-        int resultCount = employeeMapper.checkUserId(userId);
-        if (resultCount == 0) {
-            return ServerResponse.createByErrorMessage("用户名不存在");
+    public ServerResponse addEmployee(Employee employee) {
+        employee.setId(createEmployeeId());
+        employee.setRole(Const.Number.ONE);
+        log.info(employee.toString());
+        int resultCount = employeeMapper.insert(employee);
+        if (resultCount != 0) {
+            return ServerResponse.createBySuccess();
         }
+        return ServerResponse.createByErrorMessage("添加失败");
+    }
 
-        Employee employee = employeeMapper.selectLogin(userId, password);
-        if (employee == null) {
-            // 查询结果为空
-            return ServerResponse.createByErrorMessage("密码错误");
+    @Override
+    public ServerResponse updateEmployee(Employee employee) {
+        int resultCount = employeeMapper.updateByPrimaryKeySelective(employee);
+        if (resultCount != 0) {
+            return ServerResponse.createBySuccess();
         }
-        employee.setPassword(StringUtils.EMPTY);
-        return ServerResponse.createBySuccess("登录成功", employee);
+        return ServerResponse.createByErrorMessage("更新失败");
+    }
+
+    @Override
+    public ServerResponse getList(EmployeeList employeeList) {
+        List<Employee> list = PageHelper.startPage(employeeList.getPage(), employeeList.getLimit()).doSelectPage(()-> employeeMapper.selectSelective(employeeList));
+        if (list != null) {
+            ListVo listVo = new ListVo();
+            listVo.setItems(list);
+            listVo.setTotal(PageHelper.count(()->employeeMapper.selectSelective(employeeList)));
+            return ServerResponse.createBySuccess(listVo);
+        }
+        return ServerResponse.createByErrorMessage("获取客户列表失败");
+    }
+
+    /**
+     * 客户编号
+     * 格式为：yyMM 加 三位递增的数字，数字每月重置为1
+     * @return
+     */
+    private Integer createEmployeeId() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyMM");
+        String format = dateFormat.format(new Date()) + "000";
+        return Integer.valueOf(format) + (num++);
+    }
+
+    private int num = 1;
+
+    @Scheduled(cron="0 0 0 0 * ?")
+    private void clearNum() {
+        num = 1;
     }
 }

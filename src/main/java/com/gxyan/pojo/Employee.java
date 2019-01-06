@@ -1,14 +1,16 @@
 package com.gxyan.pojo;
 
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @ToString
 public class Employee {
     private Integer id;
 
-    private Integer role;
+    private String role;
 
     private String name;
 
@@ -20,13 +22,14 @@ public class Employee {
 
     private String gender;
 
-    private String salary;
+    private BigDecimal salary;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date entryTime;
 
     private String status;
 
-    public Employee(Integer id, Integer role, String name, String password, String idCard, String phone, String gender, String salary, Date entryTime, String status) {
+    public Employee(Integer id, String role, String name, String password, String idCard, String phone, String gender, BigDecimal salary, Date entryTime, String status) {
         this.id = id;
         this.role = role;
         this.name = name;
@@ -51,11 +54,11 @@ public class Employee {
         this.id = id;
     }
 
-    public Integer getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Integer role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -99,12 +102,12 @@ public class Employee {
         this.gender = gender == null ? null : gender.trim();
     }
 
-    public String getSalary() {
+    public BigDecimal getSalary() {
         return salary;
     }
 
-    public void setSalary(String salary) {
-        this.salary = salary == null ? null : salary.trim();
+    public void setSalary(BigDecimal salary) {
+        this.salary = salary;
     }
 
     public Date getEntryTime() {

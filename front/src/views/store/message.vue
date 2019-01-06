@@ -39,27 +39,22 @@
           <span>{{ scope.row.color }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="进价" sortable="custom" align="center" min-width="105px">
+      <el-table-column label="进价" sortable="custom" prop="price" align="center" min-width="105px">
         <template slot-scope="scope">
           <span>￥ {{ scope.row.price }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="售价" sortable="custom" align="center" min-width="105px">
+      <el-table-column label="售价" sortable="custom" prop="salePrice" align="center" min-width="105px">
         <template slot-scope="scope">
           <span>￥ {{ scope.row.salePrice }}</span>
         </template>
       </el-table-column>
-      <!--<el-table-column label="入库数" prop="storeNum" min-width="85px" sortable="custom" align="center">-->
-      <!--<template slot-scope="scope">-->
-      <!--<span>30</span>-->
-      <!--</template>-->
-      <!--</el-table-column>-->
-      <el-table-column label="库存数" prop="storeNum" min-width="85px" sortable="custom" align="center">
+      <el-table-column label="库存数" prop="repertory" min-width="85px" sortable="custom" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.repertory }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="入库时间" prop="date" sortable="custom" min-width="135px" align="center">
+      <el-table-column label="入库时间" prop="createTime" sortable="custom" min-width="135px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
@@ -159,7 +154,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 10,
+        limit: 5,
         id: undefined,
         brandId: undefined,
         seriesId: undefined,
@@ -167,7 +162,6 @@ export default {
         orderBy: undefined
       },
       carStatusOptions,
-      // statusOptions: ['在售', '缺货', '停售'],
       temp: {
         id: undefined,
         series: [],
@@ -267,26 +261,12 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
-    // handleModifyStatus(row, status) {
-    //   this.$message({
-    //     message: '操作成功',
-    //     type: 'success'
-    //   })
-    //   row.status = status
-    // },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      } else if (prop === 'date') {
-        // 按日期排序
-      }
-    },
-    sortByID(order) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+id'
+        this.listQuery.orderBy = prop + ' asc'
       } else {
-        this.listQuery.sort = '-id'
+        this.listQuery.orderBy = prop + ' desc'
       }
       this.handleFilter()
     },

@@ -20,6 +20,4 @@ public interface CarMapper {
     int updateByPrimaryKey(Car record);
 
     List<Store> selectSelective(StoreList storeList);
-
-    List<Car> selectByBrandId(Integer brandId);
 }

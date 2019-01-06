@@ -76,7 +76,7 @@ export default {
     return {
       loginForm: {
         roles: '销售',
-        username: '1234567899',
+        username: '123456',
         password: '123456'
       },
       loginRules: {

@@ -48,7 +48,6 @@ public class StoreController {
 
     @RequestMapping(value = "getList", method = RequestMethod.GET)
     public ServerResponse getList(StoreList storeList) {
-        log.info(storeList.toString());
         return storeService.getList(storeList);
     }
 

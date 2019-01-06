@@ -148,7 +148,7 @@ public class StoreServiceImpl implements IStoreService {
             listVo.setTotal(PageHelper.count(()->carMapper.selectSelective(storeList)));
             return ServerResponse.createBySuccess(listVo);
         }
-        return ServerResponse.createByErrorMessage("获取库存失败");
+        return ServerResponse.createByErrorMessage("获取库存列表失败");
     }
 
     @Override
@@ -170,11 +170,10 @@ public class StoreServiceImpl implements IStoreService {
     private Long createCarId() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
         String format = dateFormat.format(new Date()) + "00000";
-        Long id = Long.valueOf(format) + (num++);
-        return id;
+        return Long.valueOf(format) + (num++);
     }
 
-    private int num = 4;
+    private int num = 1;
 
     @Scheduled(cron="0 0 0 * * ?")
     private void clearNum() {

@@ -1,7 +1,10 @@
 package com.gxyan.pojo;
 
+import lombok.ToString;
+
 import java.util.Date;
 
+@ToString
 public class Customer {
     private Long id;
 
