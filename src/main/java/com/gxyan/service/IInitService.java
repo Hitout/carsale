@@ -23,4 +23,8 @@ public interface IInitService {
      * @return
      */
     ServerResponse<List<Brand>> brandOpt();
+
+    ServerResponse storeOpt(Integer seriesId);
+
+    ServerResponse getCustomer(String idCard);
 }

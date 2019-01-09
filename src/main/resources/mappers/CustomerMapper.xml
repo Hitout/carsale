@@ -44,6 +44,12 @@
       order by ${orderBy}
     </if>
   </select>
+  <select id="selectByIdCard" resultMap="BaseResultMap" parameterType="string">
+    select
+    <include refid="Base_Column_List"/>
+    from customer
+    where id_card = #{idCard}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from customer
     where id = #{id,jdbcType=BIGINT}

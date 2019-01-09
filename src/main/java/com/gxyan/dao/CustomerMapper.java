@@ -19,4 +19,6 @@ public interface CustomerMapper {
     int updateByPrimaryKey(Customer record);
 
     List<Customer> selectSelective(CustomerList customerList);
+
+    Customer selectByIdCard(String idCard);
 }

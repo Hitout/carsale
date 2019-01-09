@@ -165,14 +165,12 @@ export default {
   methods: {
     // 获取series
     getSeriesOpt() {
-      this.listLoading = true
       fetchSeries().then(response => {
         this.options = response.data.data
       })
     },
     // 获取brand
     getBrandOpt() {
-      this.listLoading = true
       fetchBrand().then(response => {
         this.brandOptions = response.data.data
       })

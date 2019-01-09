@@ -1,6 +1,5 @@
 package com.gxyan.dao;
 
-import com.gxyan.pojo.Employee;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,17 +8,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * @author gxyan
- * @date 2018/12/25 20:31
+ * @date 2019/1/9 21:06
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class EmployeeMapperTest {
+public class CarMapperTest {
     @Autowired
-    private EmployeeMapper employeeMapper;
+    private CarMapper carMapper;
 
     @Test
-    public void selectByPrimaryKey() {
-        Employee employee = employeeMapper.selectByPrimaryKey(123456789);
-        System.out.println(employee.toString());
+    public void updateRepertoryByPrimaryKey() {
+        carMapper.updateRepertoryByPrimaryKey(19010400001L, 1);
     }
 }

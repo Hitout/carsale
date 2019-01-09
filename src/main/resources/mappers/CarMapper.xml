@@ -54,6 +54,17 @@
       order by ${orderBy}
     </if>
   </select>
+  <select id="selectBySeriesId" resultType="com.gxyan.pojo.Car" parameterType="int">
+    select
+    id, type, color, sale_price salePrice
+    from car
+    where series_id = #{seriesId}
+  </select>
+  <select id="selectRepertoryByPrimaryKey" resultType="java.lang.Integer">
+    select repertory
+    from car
+    where id = #{carId}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from car
     where id = #{id,jdbcType=BIGINT}
@@ -170,5 +181,10 @@
       create_time = now(),
       status = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateRepertoryByPrimaryKey">
+    update car
+    set repertory = #{carNumber}
+    where id = #{carId}
   </update>
 </mapper>

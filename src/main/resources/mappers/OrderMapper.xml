@@ -17,25 +17,23 @@
     id, customer_id, employee_id, total_price, status, create_time, pay_time, update_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
-    from order
+    from `order`
     where id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from order
+    delete from `order`
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.Order">
-    insert into order (id, customer_id, employee_id, 
-      total_price, status, create_time, 
-      pay_time, update_time)
-    values (#{id,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT}, #{employeeId,jdbcType=INTEGER}, 
-      #{totalPrice,jdbcType=DECIMAL}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{payTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    insert into `order` (id, customer_id, employee_id,
+      total_price, status, create_time, update_time)
+    values (#{id,jdbcType=BIGINT}, #{customerId,jdbcType=BIGINT}, #{employeeId,jdbcType=INTEGER},
+      #{totalPrice,jdbcType=DECIMAL}, #{status,jdbcType=VARCHAR}, now(), now())
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Order">
-    insert into order
+    insert into `order`
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -90,7 +88,7 @@
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.gxyan.pojo.Order">
-    update order
+    update `order`
     <set>
       <if test="customerId != null">
         customer_id = #{customerId,jdbcType=BIGINT},
@@ -117,7 +115,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Order">
-    update order
+    update `order`
     set customer_id = #{customerId,jdbcType=BIGINT},
       employee_id = #{employeeId,jdbcType=INTEGER},
       total_price = #{totalPrice,jdbcType=DECIMAL},
@@ -126,5 +124,10 @@
       pay_time = #{payTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updatePayTimeByPrimaryKey">
+    update `order`
+    set pay_time = now()
+    where id = #{orderId}
   </update>
 </mapper>

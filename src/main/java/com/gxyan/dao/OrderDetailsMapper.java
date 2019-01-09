@@ -3,13 +3,13 @@ package com.gxyan.dao;
 import com.gxyan.pojo.OrderDetails;
 
 public interface OrderDetailsMapper {
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(String id);
 
     int insert(OrderDetails record);
 
     int insertSelective(OrderDetails record);
 
-    OrderDetails selectByPrimaryKey(Long id);
+    OrderDetails selectByPrimaryKey(String id);
 
     int updateByPrimaryKeySelective(OrderDetails record);
 

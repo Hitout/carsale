@@ -40,7 +40,7 @@
       </el-table-column>
       <el-table-column label="注册时间" prop="createTime" sortable="custom" min-width="135px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="100px" class-name="small-padding fixed-width">

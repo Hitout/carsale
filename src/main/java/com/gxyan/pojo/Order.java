@@ -1,8 +1,11 @@
 package com.gxyan.pojo;
 
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
+@ToString
 public class Order {
     private Long id;
 

@@ -21,7 +21,7 @@
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange">
-      <el-table-column label="员工编号" prop="employeeId" sortable="custom" align="center" min-width="105px">
+      <el-table-column label="员工编号" prop="id" sortable="custom" align="center" min-width="105px">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
@@ -51,7 +51,7 @@
           <span>{{ scope.row.idCard }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="薪资/月" sortable="custom" align="center" min-width="105px">
+      <el-table-column label="薪资/月" prop="salary" sortable="custom" align="center" min-width="105px">
         <template slot-scope="scope">
           <span>￥ {{ scope.row.salary }}</span>
         </template>
@@ -227,17 +227,10 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      } else if (prop === 'date') {
-        // 按日期排序
-      }
-    },
-    sortByID(order) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+id'
+        this.listQuery.orderBy = prop + ' asc'
       } else {
-        this.listQuery.sort = '-id'
+        this.listQuery.orderBy = prop + ' desc'
       }
       this.handleFilter()
     },

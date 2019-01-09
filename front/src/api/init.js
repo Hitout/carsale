@@ -13,3 +13,19 @@ export function fetchBrand() {
     method: 'get'
   })
 }
+
+export function fetchStore(seriesId) {
+  return request({
+    url: '/init/storeOpt',
+    method: 'get',
+    params: { seriesId }
+  })
+}
+
+export function fetchCustomer(idCard) {
+  return request({
+    url: '/init/getCustomer',
+    method: 'get',
+    params: { idCard }
+  })
+}

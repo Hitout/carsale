@@ -29,4 +29,14 @@ public class InitController {
     public ServerResponse brandOpt() {
         return initService.brandOpt();
     }
+
+    @RequestMapping(value = "storeOpt", method = RequestMethod.GET)
+    public ServerResponse storeOpt(Integer seriesId) {
+        return initService.storeOpt(seriesId);
+    }
+
+    @RequestMapping(value = "getCustomer", method = RequestMethod.GET)
+    public ServerResponse getCustomer(String idCard) {
+        return initService.getCustomer(idCard);
+    }
 }
