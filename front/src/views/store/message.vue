@@ -128,7 +128,6 @@ const calendarTypeKeyValue = carStatusOptions.reduce((acc, cur) => {
 }, {})
 
 export default {
-  // name: 'ComplexTable',
   components: { Pagination },
   directives: {
     waves
@@ -241,11 +240,11 @@ export default {
     },
     changeSeries() {
       this.listQuery.seriesId = null
-      var brand = this.listQuery.brandId
+      const brand = this.listQuery.brandId
       if (brand === '' || brand === null) {
         this.seriesOptions = []
       } else {
-        var index
+        let index
         for (const v of this.options) {
           if (v.value === brand) {
             index = this.options.indexOf(v)
@@ -271,7 +270,6 @@ export default {
     handleUpdate(row) {
       this.temp = Object.assign({}, row) // copy obj
       this.temp.series = [row.brandId, row.seriesId]
-      // console.log(this.temp)
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()

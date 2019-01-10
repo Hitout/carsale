@@ -76,8 +76,7 @@ import { addOrder } from '@/api/order'
 
 const orderStatusOptions = [
   { key: '0', display_name: '未支付' },
-  { key: '1', display_name: '已支付' },
-  { key: '2', display_name: '已取消' }
+  { key: '1', display_name: '已支付' }
 ]
 
 export default {
@@ -126,17 +125,13 @@ export default {
 
     // 获取库存
     getStore(index) {
-      console.log('获取库存')
-      // const index = this.ruleForm.domains.indexOf(item)
       fetchStore(this.ruleForm.domains[index].selectedOptions[1]).then(response => {
         this.ruleForm.domains[index].store = response.data.data
         this.ruleForm.domains[index].carId = null
-        console.log(this.ruleForm.domains[index])
       })
     },
 
     getPrice(index) {
-      console.log('价格ing')
       const storeIndex = this.ruleForm.domains[index].storeIndex
       this.ruleForm.domains[index].salePrice = this.ruleForm.domains[index].store[storeIndex].salePrice
       this.ruleForm.domains[index].carId = this.ruleForm.domains[index].store[storeIndex].id

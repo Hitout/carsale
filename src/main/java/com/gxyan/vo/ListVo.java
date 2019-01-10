@@ -1,9 +1,6 @@
 package com.gxyan.vo;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -11,10 +8,7 @@ import java.util.List;
  * @author gxyan
  * @date 2019/1/5 9:20
  */
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class ListVo {
 
     private List items;

@@ -65,6 +65,11 @@
     from car
     where id = #{carId}
   </select>
+  <select id="selectSalePriceByPrimaryKey" resultType="java.math.BigDecimal">
+    select sale_price
+    from car
+    where id = #{carId}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from car
     where id = #{id,jdbcType=BIGINT}
@@ -185,6 +190,13 @@
   <update id="updateRepertoryByPrimaryKey">
     update car
     set repertory = #{carNumber}
+    where id = #{carId}
+  </update>
+  <update id="addRepertoryByPrimaryKey">
+    update car
+    <![CDATA[
+    set repertory = repertory + #{carNumber}
+    ]]>
     where id = #{carId}
   </update>
 </mapper>

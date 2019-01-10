@@ -22,6 +22,32 @@
     from `order`
     where id = #{id,jdbcType=BIGINT}
   </select>
+  <select id="selectSale" resultType="com.gxyan.vo.Sale" parameterType="com.gxyan.vo.OrderList">
+    select `order`.id orderId, c.id customerId, c.name customerName, c.phone customerPhone,
+      c.id_card customerIdCard, e.name employeeName,
+      total_price totalPrice, `order`.status status,
+      `order`.create_time createTime, pay_time payTime, update_time updateTime
+    from `order`
+      inner join employee e on `order`.employee_id = e.id
+      inner join customer c on `order`.customer_id = c.id
+    <where>
+      <if test="orderId != null and orderId != ''">
+        and `order`.id = #{orderId}
+      </if>
+      <if test="customerName != null and customerName != ''">
+        and c.name = #{customerName}
+      </if>
+      <if test="employeeName != null and employeeName != ''">
+        and e.name = #{employeeName}
+      </if>
+      <if test="status != null and status != ''">
+        and `order`.status = #{status}
+      </if>
+    </where>
+    <if test="orderBy != null and orderBy != ''">
+      order by ${orderBy}
+    </if>
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from `order`
     where id = #{id,jdbcType=BIGINT}
@@ -127,7 +153,21 @@
   </update>
   <update id="updatePayTimeByPrimaryKey">
     update `order`
-    set pay_time = now()
+    set pay_time = now(),
+      update_time = now()
+    where id = #{orderId} and status = 1
+  </update>
+  <update id="updateStatusByPrimaryKey">
+    update `order`
+    set status = #{status},
+      update_time = now()
+    where id = #{orderId} and status != 1
+  </update>
+  <update id="addTotalPriceByPrimaryKey">
+    update `order`
+    <![CDATA[
+    set total_price = total_price + #{totalPrice}
+    ]]>
     where id = #{orderId}
   </update>
 </mapper>

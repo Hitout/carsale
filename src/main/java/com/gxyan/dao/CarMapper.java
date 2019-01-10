@@ -5,6 +5,7 @@ import com.gxyan.vo.Store;
 import com.gxyan.vo.StoreList;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface CarMapper {
@@ -24,7 +25,11 @@ public interface CarMapper {
 
     List<Car> selectBySeriesId(Integer seriesId);
 
+    int selectRepertoryByPrimaryKey(Long carId);
+
     int updateRepertoryByPrimaryKey(@Param("carId") Long carId, @Param("carNumber") Integer carNumber);
 
-    int selectRepertoryByPrimaryKey(Long carId);
+    int addRepertoryByPrimaryKey(@Param("carId") Long carId, @Param("carNumber") Integer carNumber);
+
+    BigDecimal selectSalePriceByPrimaryKey(Long carId);
 }

@@ -18,6 +18,23 @@
     from order_details
     where id = #{id,jdbcType=VARCHAR}
   </select>
+  <select id="selectByOrderId" resultType="com.gxyan.pojo.OrderDetails">
+    select order_details.id, order_id orderId, car_id carId, car_number carNumber
+    from order_details
+    inner join `order` o on order_details.order_id = o.id
+    where order_id = #{orderId}
+  </select>
+  <select id="selectDetailsByOrderId" resultType="com.gxyan.vo.Details">
+    select order_details.id, c.id carId, type, color, sale_price salePrice,
+                             b.brand_id brandId, b.brand_name brandName,
+                             s.series_id seriesId, s.series_name seriesName,
+                             order_details.car_number carNumber
+    from order_details
+      inner join car c on order_details.car_id = c.id
+      inner join series s on c.series_id = s.series_id
+      inner join brand b on s.brand_id = b.brand_id
+    where order_id = #{orderId}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from order_details
     where id = #{id,jdbcType=VARCHAR}
