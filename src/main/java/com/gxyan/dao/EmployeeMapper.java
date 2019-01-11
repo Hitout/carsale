@@ -1,7 +1,7 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.Employee;
-import com.gxyan.vo.EmployeeList;
+import com.gxyan.vo.EmployeeQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -23,5 +23,5 @@ public interface EmployeeMapper {
 
     Employee selectLogin(@Param("id") Integer id, @Param("password") String password);
 
-    List<Employee> selectSelective(EmployeeList employeeList);
+    List<Employee> selectSelective(EmployeeQuery employeeQuery);
 }

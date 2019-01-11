@@ -36,7 +36,7 @@
     where id = #{id}
     and password = #{password}
   </select>
-  <select id="selectSelective" resultType="com.gxyan.pojo.Employee" parameterType="com.gxyan.vo.EmployeeList">
+  <select id="selectSelective" resultType="com.gxyan.pojo.Employee" parameterType="com.gxyan.vo.EmployeeQuery">
     select
     id, role, name, id_card idCard, phone, gender, salary, entry_time entryTime, status
     from employee

@@ -2,7 +2,7 @@ package com.gxyan.service;
 
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Customer;
-import com.gxyan.vo.CustomerList;
+import com.gxyan.vo.CustomerQuery;
 
 /**
  * @author gxyan
@@ -11,7 +11,7 @@ import com.gxyan.vo.CustomerList;
 public interface ICustomerService {
     ServerResponse addCustomer(Customer customer);
 
-    ServerResponse getList(CustomerList customerList);
+    ServerResponse getList(CustomerQuery customerQuery);
 
     ServerResponse updateCustomer(Customer customer);
 }

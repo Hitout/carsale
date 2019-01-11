@@ -19,7 +19,7 @@
     from customer
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <select id="selectSelective" resultMap="BaseResultMap" parameterType="com.gxyan.vo.CustomerList">
+  <select id="selectSelective" resultMap="BaseResultMap" parameterType="com.gxyan.vo.CustomerQuery">
     select
     <include refid="Base_Column_List"/>
     from customer

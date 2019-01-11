@@ -2,8 +2,8 @@ package com.gxyan.dao;
 
 import com.gxyan.common.Const;
 import com.gxyan.pojo.Order;
+import com.gxyan.vo.OrderQuery;
 import com.gxyan.vo.OrderList;
-import com.gxyan.vo.Sale;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author gxyan
@@ -43,8 +41,8 @@ public class OrderMapperTest {
 
     @Test
     public void selectSale() {
-        OrderList orderList = new OrderList();
-        List <Sale> sales = orderMapper.selectSale(orderList);
+        OrderQuery orderQuery = new OrderQuery();
+        List <OrderList> sales = orderMapper.selectSale(orderQuery);
         System.out.println(sales.toString());
     }
 }

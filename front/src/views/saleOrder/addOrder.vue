@@ -51,7 +51,7 @@
           <el-input-number v-model="domain.carNumber" :min="1" @change="getTotalPrice"/>
         </el-form-item>
         <el-form-item label="售价">
-          <span style="margin-left: 15px">{{ domain.salePrice }}</span> 元/辆
+          <span v-if="domain.storeIndex !== null" style="margin-left: 15px">{{ domain.salePrice }} 元/辆</span>
         </el-form-item>
       </div>
       <el-form-item>
@@ -128,6 +128,8 @@ export default {
       fetchStore(this.ruleForm.domains[index].selectedOptions[1]).then(response => {
         this.ruleForm.domains[index].store = response.data.data
         this.ruleForm.domains[index].carId = null
+        this.ruleForm.domains[index].storeIndex = null
+        console.log(this.ruleForm.domains[index])
       })
     },
 

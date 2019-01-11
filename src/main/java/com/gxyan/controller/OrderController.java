@@ -3,16 +3,14 @@ package com.gxyan.controller;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.OrderDetails;
 import com.gxyan.service.IOrderService;
-import com.gxyan.vo.OrderDetailVo;
-import com.gxyan.vo.OrderList;
+import com.gxyan.vo.DetailsQuery;
+import com.gxyan.vo.OrderQuery;
 import com.gxyan.vo.OrderVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * @author gxyan
@@ -31,8 +29,8 @@ public class OrderController {
     }
 
     @RequestMapping(value = "getList", method = RequestMethod.GET)
-    public ServerResponse getList(OrderList orderList) {
-        return orderService.getList(orderList);
+    public ServerResponse getList(OrderQuery orderQuery) {
+        return orderService.getList(orderQuery);
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)
@@ -43,5 +41,15 @@ public class OrderController {
     @RequestMapping(value = "updateDetail", method = RequestMethod.POST)
     public ServerResponse updateDetail(OrderDetails orderDetails) {
         return orderService.updateDetail(orderDetails);
+    }
+
+    @RequestMapping(value = "deleteDetail", method = RequestMethod.POST)
+    public ServerResponse deleteDetail(String id) {
+        return orderService.deleteDetail(id);
+    }
+
+    @RequestMapping(value = "getDetailsList", method = RequestMethod.GET)
+    public ServerResponse getDetailsList(DetailsQuery detailsQuery) {
+        return orderService.getDetailsList(detailsQuery);
     }
 }

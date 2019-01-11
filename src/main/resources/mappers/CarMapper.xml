@@ -23,7 +23,7 @@
     from car
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <select id="selectSelective" parameterType="com.gxyan.vo.StoreList" resultType="com.gxyan.vo.Store">
+  <select id="selectSelective" parameterType="com.gxyan.vo.StoreQuery" resultType="com.gxyan.vo.StoreList">
     select
     id, brand_name brandName, series_name seriesName,
     car.series_id seriesId, series.brand_id brandId,

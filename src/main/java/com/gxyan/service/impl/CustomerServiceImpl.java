@@ -5,7 +5,7 @@ import com.gxyan.common.ServerResponse;
 import com.gxyan.dao.CustomerMapper;
 import com.gxyan.pojo.Customer;
 import com.gxyan.service.ICustomerService;
-import com.gxyan.vo.CustomerList;
+import com.gxyan.vo.CustomerQuery;
 import com.gxyan.vo.ListVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +38,12 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public ServerResponse getList(CustomerList customerList) {
-        List<Customer> list = PageHelper.startPage(customerList.getPage(), customerList.getLimit()).doSelectPage(()-> customerMapper.selectSelective(customerList));
+    public ServerResponse getList(CustomerQuery customerQuery) {
+        List<Customer> list = PageHelper.startPage(customerQuery.getPage(), customerQuery.getLimit()).doSelectPage(()-> customerMapper.selectSelective(customerQuery));
         if (list != null) {
             ListVo listVo = new ListVo();
             listVo.setItems(list);
-            listVo.setTotal(PageHelper.count(()->customerMapper.selectSelective(customerList)));
+            listVo.setTotal(PageHelper.count(()->customerMapper.selectSelective(customerQuery)));
             return ServerResponse.createBySuccess(listVo);
         }
         return ServerResponse.createByErrorMessage("获取客户列表失败");

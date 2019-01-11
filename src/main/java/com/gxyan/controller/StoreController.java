@@ -3,8 +3,7 @@ package com.gxyan.controller;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Car;
 import com.gxyan.service.IStoreService;
-import com.gxyan.util.JsonUtil;
-import com.gxyan.vo.StoreList;
+import com.gxyan.vo.StoreQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +46,8 @@ public class StoreController {
     }
 
     @RequestMapping(value = "getList", method = RequestMethod.GET)
-    public ServerResponse getList(StoreList storeList) {
-        return storeService.getList(storeList);
+    public ServerResponse getList(StoreQuery storeQuery) {
+        return storeService.getList(storeQuery);
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)

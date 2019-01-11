@@ -3,12 +3,10 @@ package com.gxyan.controller;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Employee;
 import com.gxyan.service.IEmployeeService;
-import com.gxyan.vo.CustomerList;
-import com.gxyan.vo.EmployeeList;
+import com.gxyan.vo.EmployeeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -28,8 +26,8 @@ public class EmployeeController {
     }
 
     @RequestMapping(value = "getList", method = RequestMethod.GET)
-    public ServerResponse getList(EmployeeList employeeList) {
-        return employeeService.getList(employeeList);
+    public ServerResponse getList(EmployeeQuery employeeQuery) {
+        return employeeService.getList(employeeQuery);
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)

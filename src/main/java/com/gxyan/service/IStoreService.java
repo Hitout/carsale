@@ -2,7 +2,7 @@ package com.gxyan.service;
 
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Car;
-import com.gxyan.vo.StoreList;
+import com.gxyan.vo.StoreQuery;
 
 /**
  * @author gxyan
@@ -20,7 +20,7 @@ public interface IStoreService {
 
     ServerResponse addStore(Car car);
 
-    ServerResponse getList(StoreList storeList);
+    ServerResponse getList(StoreQuery storeQuery);
 
     ServerResponse updateStore(Car car);
 }

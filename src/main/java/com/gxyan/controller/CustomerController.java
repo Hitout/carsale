@@ -1,10 +1,9 @@
 package com.gxyan.controller;
 
 import com.gxyan.common.ServerResponse;
-import com.gxyan.pojo.Car;
 import com.gxyan.pojo.Customer;
 import com.gxyan.service.ICustomerService;
-import com.gxyan.vo.CustomerList;
+import com.gxyan.vo.CustomerQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,8 +28,8 @@ public class CustomerController {
     }
 
     @RequestMapping(value = "getList", method = RequestMethod.GET)
-    public ServerResponse getList(CustomerList customerList) {
-        return customerService.getList(customerList);
+    public ServerResponse getList(CustomerQuery customerQuery) {
+        return customerService.getList(customerQuery);
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)

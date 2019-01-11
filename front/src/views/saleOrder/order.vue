@@ -2,10 +2,9 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.orderId" placeholder="订单编号" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <!--<el-input v-model="listQuery.customerId" placeholder="客户编号" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>-->
       <el-input v-model="listQuery.customerName" placeholder="客户姓名" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-input v-model="listQuery.employeeName" placeholder="销售员姓名" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-select v-model="listQuery.status" placeholder="状态" clearable class="filter-item" style="width: 130px">
+      <el-select v-model="listQuery.status" placeholder="状态" clearable class="filter-item" style="width: 130px" @keyup.enter.native="handleFilter">
         <el-option v-for="item in orderStatusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
@@ -21,14 +20,6 @@
       @sort-change="sortChange">
       <el-table-column type="expand" width="30">
         <template slot-scope="props">
-          <!--<el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="创建时间">
-              <span>{{ timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-            </el-form-item>
-            <el-form-item label="更新时间">
-              <span>{{ timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-            </el-form-item>
-          </el-form>-->
           <el-table :data="props.row.details" border>
             <el-table-column label="订单详情编号" min-width="110" align="center">
               <template slot-scope="scope">
@@ -137,10 +128,7 @@
           :rules="{ required: true, message: '必须选择型号', trigger: 'change' }"
           label="型号 & 颜色"
           prop="carId">
-          <!--<el-select v-model="temp.color" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in orderStatusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
-          </el-select>-->
-          <el-select v-model="temp.carId" class="filter-item" placeholder="Please select" style="width: 100%">
+          <el-select v-model="temp.carId" class="filter-item" placeholder="Please select" style="width: 100%" @change="getPrice">
             <el-option
               v-for="item in temp.store"
               :key="item.id"
@@ -153,6 +141,9 @@
         </el-form-item>
         <el-form-item label="数量" prop="carNumber">
           <el-input-number v-model="temp.carNumber" :min="1"/>
+        </el-form-item>
+        <el-form-item label="售价">
+          <span v-if="temp.carId">{{ temp.salePrice }} 元/辆</span>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -182,7 +173,7 @@ import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 import { validateIdCard } from '@/utils/validate'
-import { fetchList, updateStatus, updateDetail } from '@/api/order'
+import { fetchList, updateStatus, updateDetail, deleteDetail } from '@/api/order'
 import { fetchStore, fetchSeries } from '@/api/init'
 
 const orderStatusOptions = [
@@ -248,8 +239,7 @@ export default {
         selectedOptions: [{ required: true, message: '必须选择车型', trigger: 'change' }],
         customerIdCard: [{ required: true, validator: validateIdCard, trigger: 'blur' }]
       },
-      downloadLoading: false,
-      dialogAddVisible: false
+      downloadLoading: false
     }
   },
   created() {
@@ -262,16 +252,14 @@ export default {
         if (response.data.code === 20000) {
           this.list = response.data.data.items
           this.total = response.data.data.total
+          this.listLoading = false
         } else {
           this.$message({
             message: response.data.message,
             type: 'error'
           })
-        }
-
-        setTimeout(() => {
           this.listLoading = false
-        }, 1.5 * 1000)
+        }
       })
     },
     // 获取series
@@ -301,6 +289,14 @@ export default {
         }
         this.temp.carId = null
       })
+    },
+    getPrice() {
+      for (const v of this.temp.store) {
+        if (v.id === this.temp.carId) {
+          this.temp.salePrice = v.salePrice
+          break
+        }
+      }
     },
 
     handleFilter() {
@@ -344,6 +340,7 @@ export default {
           }).then(response => {
             if (response.data.code === 20000) {
               this.updateStatus.payTime = new Date()
+              this.updateStatus.updateTime = new Date()
               for (const v of this.list) {
                 if (v.orderId === this.updateStatus.orderId) {
                   const index = this.list.indexOf(v)
@@ -405,6 +402,7 @@ export default {
                     totalPrice += u.salePrice * u.carNumber
                   }
                   update.totalPrice = totalPrice
+                  update.updateTime = new Date()
                   this.list.splice(index, 1, update)
                   break
                 }
@@ -428,34 +426,77 @@ export default {
         }
       })
     },
-    handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
+    handleDelete(row, orderId) {
+      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(() => {
+        const tempData = Object.assign({}, row)
+        deleteDetail({
+          id: tempData.id
+        }).then(response => {
+          if (response.data.code === 20000) {
+            for (const v of this.list) {
+              if (v.orderId === orderId) {
+                let totalPrice = 0
+                const index = this.list.indexOf(v)
+                const update = this.list[index]
+                for (const u of update.details) {
+                  if (u.id === tempData.id) {
+                    const i = update.details.indexOf(u)
+                    update.details.splice(i, 1)
+                    break
+                  }
+                }
+                for (const u of update.details) {
+                  totalPrice += u.salePrice * u.carNumber
+                }
+                update.totalPrice = totalPrice
+                this.list.splice(index, 1, update)
+                break
+              }
+            }
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+          } else {
+            this.$notify({
+              title: '错误',
+              message: response.data.message,
+              type: 'error',
+              duration: 2000
+            })
+          }
+        })
       })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
     },
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+        const tHeader = ['订单编号', '客户编号', '客户姓名', '创建时间', '更新时间', '状态']
+        const filterVal = ['orderId', 'customerId', 'customerName', 'createTime', 'updateTime', 'status']
         const data = this.formatJson(filterVal, this.list)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'table-list'
+          filename: '销售订单'
         })
         this.downloadLoading = false
       })
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
+        if (j === 'createTime') {
           return parseTime(v[j])
+        } else if (j === 'updateTime') {
+          return parseTime(v[j])
+        } else if (j === 'status') {
+          return orderTypeKeyValue[v[j]]
         } else {
           return v[j]
         }

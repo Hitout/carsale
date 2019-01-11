@@ -4,10 +4,9 @@ import com.github.pagehelper.PageHelper;
 import com.gxyan.common.Const;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.dao.EmployeeMapper;
-import com.gxyan.pojo.Customer;
 import com.gxyan.pojo.Employee;
 import com.gxyan.service.IEmployeeService;
-import com.gxyan.vo.EmployeeList;
+import com.gxyan.vo.EmployeeQuery;
 import com.gxyan.vo.ListVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,12 +50,12 @@ public class EmployeeServiceImpl implements IEmployeeService {
     }
 
     @Override
-    public ServerResponse getList(EmployeeList employeeList) {
-        List<Employee> list = PageHelper.startPage(employeeList.getPage(), employeeList.getLimit()).doSelectPage(()-> employeeMapper.selectSelective(employeeList));
+    public ServerResponse getList(EmployeeQuery employeeQuery) {
+        List<Employee> list = PageHelper.startPage(employeeQuery.getPage(), employeeQuery.getLimit()).doSelectPage(()-> employeeMapper.selectSelective(employeeQuery));
         if (list != null) {
             ListVo listVo = new ListVo();
             listVo.setItems(list);
-            listVo.setTotal(PageHelper.count(()->employeeMapper.selectSelective(employeeList)));
+            listVo.setTotal(PageHelper.count(()->employeeMapper.selectSelective(employeeQuery)));
             return ServerResponse.createBySuccess(listVo);
         }
         return ServerResponse.createByErrorMessage("获取客户列表失败");

@@ -1,8 +1,8 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.Order;
+import com.gxyan.vo.OrderQuery;
 import com.gxyan.vo.OrderList;
-import com.gxyan.vo.Sale;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -23,7 +23,7 @@ public interface OrderMapper {
 
     int updatePayTimeByPrimaryKey(Long orderId);
 
-    List<Sale> selectSale(OrderList orderList);
+    List<OrderList> selectSale(OrderQuery orderQuery);
 
     int updateStatusByPrimaryKey(@Param("orderId") Long orderId, @Param("status") String status);
 

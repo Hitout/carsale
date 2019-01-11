@@ -11,8 +11,8 @@ import com.gxyan.pojo.Car;
 import com.gxyan.pojo.Series;
 import com.gxyan.service.IStoreService;
 import com.gxyan.vo.ListVo;
-import com.gxyan.vo.Store;
 import com.gxyan.vo.StoreList;
+import com.gxyan.vo.StoreQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -140,12 +139,12 @@ public class StoreServiceImpl implements IStoreService {
     }
 
     @Override
-    public ServerResponse getList(StoreList storeList) {
-        List<Store> list = PageHelper.startPage(storeList.getPage(), storeList.getLimit()).doSelectPage(()-> carMapper.selectSelective(storeList));
+    public ServerResponse getList(StoreQuery storeQuery) {
+        List<StoreList> list = PageHelper.startPage(storeQuery.getPage(), storeQuery.getLimit()).doSelectPage(()-> carMapper.selectSelective(storeQuery));
         if (list != null) {
             ListVo listVo = new ListVo();
             listVo.setItems(list);
-            listVo.setTotal(PageHelper.count(()->carMapper.selectSelective(storeList)));
+            listVo.setTotal(PageHelper.count(()->carMapper.selectSelective(storeQuery)));
             return ServerResponse.createBySuccess(listVo);
         }
         return ServerResponse.createByErrorMessage("获取库存列表失败");

@@ -92,19 +92,19 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public ServerResponse getList(OrderList orderList) {
-        List<Sale> list = PageHelper.startPage(orderList.getPage(), orderList.getLimit()).doSelectPage(()-> orderMapper.selectSale(orderList));
+    public ServerResponse getList(OrderQuery orderQuery) {
+        List<OrderList> list = PageHelper.startPage(orderQuery.getPage(), orderQuery.getLimit()).doSelectPage(()-> orderMapper.selectSale(orderQuery));
         if (list != null) {
-            for (Sale sale: list) {
-                List<Details> details = detailsMapper.selectDetailsByOrderId(sale.getOrderId());
-                sale.setDetails(details);
+            for (OrderList orderList: list) {
+                List<Details> details = detailsMapper.selectDetailsByOrderId(orderList.getOrderId());
+                orderList.setDetails(details);
             }
             ListVo listVo = new ListVo();
             listVo.setItems(list);
-            listVo.setTotal(PageHelper.count(()->orderMapper.selectSale(orderList)));
+            listVo.setTotal(PageHelper.count(()->orderMapper.selectSale(orderQuery)));
             return ServerResponse.createBySuccess(listVo);
         }
-        return ServerResponse.createByErrorMessage("获取客户列表失败");
+        return ServerResponse.createByErrorMessage("获取订单列表失败");
     }
 
     @Override
@@ -169,6 +169,36 @@ public class OrderServiceImpl implements IOrderService {
             return ServerResponse.createByErrorMessage("更新失败");
         }
         return ServerResponse.createBySuccess();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ServerResponse deleteDetail(String id) {
+        OrderDetails orderDetails = detailsMapper.selectByPrimaryKey(id);
+        BigDecimal totalPrice = carMapper.selectSalePriceByPrimaryKey(orderDetails.getCarId()).negate();
+        int result = orderMapper.addTotalPriceByPrimaryKey(orderDetails.getOrderId(), totalPrice);
+        if (result == 0) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ServerResponse.createByErrorMessage("删除失败");
+        }
+        result = detailsMapper.deleteByPrimaryKey(id);
+        if (result == 0) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ServerResponse.createByErrorMessage("删除失败");
+        }
+        return ServerResponse.createBySuccess();
+    }
+
+    @Override
+    public ServerResponse getDetailsList(DetailsQuery detailsQuery) {
+        List<DetailsList> list = PageHelper.startPage(detailsQuery.getPage(), detailsQuery.getLimit()).doSelectPage(()-> detailsMapper.selectSelective(detailsQuery));
+        if (list != null) {
+            ListVo listVo = new ListVo();
+            listVo.setItems(list);
+            listVo.setTotal(PageHelper.count(()->detailsMapper.selectSelective(detailsQuery)));
+            return ServerResponse.createBySuccess(listVo);
+        }
+        return ServerResponse.createByErrorMessage("获取订单详情列表失败");
     }
 
     /**

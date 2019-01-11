@@ -2,11 +2,9 @@ package com.gxyan.service;
 
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.OrderDetails;
-import com.gxyan.vo.OrderDetailVo;
-import com.gxyan.vo.OrderList;
+import com.gxyan.vo.DetailsQuery;
+import com.gxyan.vo.OrderQuery;
 import com.gxyan.vo.OrderVo;
-
-import java.util.List;
 
 /**
  * @author gxyan
@@ -15,9 +13,13 @@ import java.util.List;
 public interface IOrderService {
     ServerResponse addOrder(OrderVo orderVo);
 
-    ServerResponse getList(OrderList orderList);
+    ServerResponse getList(OrderQuery orderQuery);
 
     ServerResponse update(Long orderId, String status);
 
     ServerResponse updateDetail(OrderDetails orderDetails);
+
+    ServerResponse deleteDetail(String id);
+
+    ServerResponse getDetailsList(DetailsQuery detailsQuery);
 }

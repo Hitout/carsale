@@ -1,9 +1,8 @@
 package com.gxyan.service.impl;
 
 
-import com.gxyan.common.ServerResponse;
 import com.gxyan.service.IOrderService;
-import com.gxyan.vo.OrderList;
+import com.gxyan.vo.OrderQuery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ public class OrderServiceImplTest {
 
     @Test
     public void getList() {
-        orderService.getList(new OrderList());
+        orderService.getList(new OrderQuery());
     }
 
 }

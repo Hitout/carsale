@@ -37,3 +37,19 @@ export function updateDetail(data) {
     params: data
   })
 }
+
+export function deleteDetail(data) {
+  return request({
+    url: '/order/deleteDetail',
+    method: 'post',
+    params: data
+  })
+}
+
+export function fetchDetailsList(query) {
+  return request({
+    url: '/order/getDetailsList',
+    method: 'get',
+    params: query
+  })
+}

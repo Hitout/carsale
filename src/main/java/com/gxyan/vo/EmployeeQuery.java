@@ -1,13 +1,13 @@
 package com.gxyan.vo;
 
-import lombok.*;
+import lombok.Data;
 
 /**
  * @author gxyan
- * @date 2019/1/6 13:29
+ * @date 2019/1/6 20:30
  */
 @Data
-public class CustomerList {
+public class EmployeeQuery {
     private int page = 1;
 
     private int limit = 5;
@@ -19,6 +19,8 @@ public class CustomerList {
     private String phone;
 
     private String idCard;
+
+    private String status;
 
     private String orderBy;
 }

@@ -78,11 +78,9 @@ public class InitServiceImpl implements IInitService {
 
     @Override
     public ServerResponse storeOpt(Integer seriesId) {
-        log.info("seriesId" + seriesId);
         List <Car> list = carMapper.selectBySeriesId(seriesId);
 
         if (!CollectionUtils.isEmpty(list)) {
-            log.info(list.toString());
             return ServerResponse.createBySuccess(list);
         } else {
             return ServerResponse.createByError();
@@ -91,7 +89,6 @@ public class InitServiceImpl implements IInitService {
 
     @Override
     public ServerResponse getCustomer(String idCard) {
-        log.info("idCard" + idCard);
         Customer customer = customerMapper.selectByIdCard(idCard);
 
         if (customer != null) {

@@ -1,8 +1,8 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.Car;
-import com.gxyan.vo.Store;
 import com.gxyan.vo.StoreList;
+import com.gxyan.vo.StoreQuery;
 import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
@@ -21,7 +21,7 @@ public interface CarMapper {
 
     int updateByPrimaryKey(Car record);
 
-    List<Store> selectSelective(StoreList storeList);
+    List<StoreList> selectSelective(StoreQuery storeQuery);
 
     List<Car> selectBySeriesId(Integer seriesId);
 

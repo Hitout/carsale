@@ -2,7 +2,7 @@ package com.gxyan.service;
 
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Employee;
-import com.gxyan.vo.EmployeeList;
+import com.gxyan.vo.EmployeeQuery;
 
 /**
  * @author gxyan
@@ -13,5 +13,5 @@ public interface IEmployeeService {
 
     ServerResponse updateEmployee(Employee employee);
 
-    ServerResponse getList(EmployeeList employeeList);
+    ServerResponse getList(EmployeeQuery employeeQuery);
 }

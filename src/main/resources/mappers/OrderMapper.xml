@@ -22,7 +22,7 @@
     from `order`
     where id = #{id,jdbcType=BIGINT}
   </select>
-  <select id="selectSale" resultType="com.gxyan.vo.Sale" parameterType="com.gxyan.vo.OrderList">
+  <select id="selectSale" resultType="com.gxyan.vo.OrderList" parameterType="com.gxyan.vo.OrderQuery">
     select `order`.id orderId, c.id customerId, c.name customerName, c.phone customerPhone,
       c.id_card customerIdCard, e.name employeeName,
       total_price totalPrice, `order`.status status,
@@ -129,13 +129,13 @@
         status = #{status,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
+        create_time = now(),
       </if>
       <if test="payTime != null">
         pay_time = #{payTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null">
-        update_time = #{updateTime,jdbcType=TIMESTAMP},
+        update_time = now(),
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
@@ -148,7 +148,7 @@
       status = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       pay_time = #{payTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = now()
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updatePayTimeByPrimaryKey">
@@ -166,7 +166,8 @@
   <update id="addTotalPriceByPrimaryKey">
     update `order`
     <![CDATA[
-    set total_price = total_price + #{totalPrice}
+    set total_price = total_price + #{totalPrice},
+      update_time = now()
     ]]>
     where id = #{orderId}
   </update>

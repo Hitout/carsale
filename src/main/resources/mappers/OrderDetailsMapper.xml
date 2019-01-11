@@ -35,6 +35,42 @@
       inner join brand b on s.brand_id = b.brand_id
     where order_id = #{orderId}
   </select>
+  <select id="selectSelective" resultType="com.gxyan.vo.DetailsList" parameterType="com.gxyan.vo.DetailsQuery">
+    select order_details.id, order_details.order_id orderId,
+      car_id carId, customer_id customerId,
+      e.name employeeName, car_number carNumber,
+      create_time createTime, update_time updateTime, o.status
+    from order_details
+      inner join `order` o on order_details.order_id = o.id
+      inner join employee e on o.employee_id = e.id
+    <where>
+      <choose>
+        <when test="id != null and id != ''">
+          order_details.id = #{id}
+        </when>
+        <otherwise>
+          <if test="orderId != null and orderId != ''">
+            and order_details.order_id = #{orderId}
+          </if>
+          <if test="customerId != null and customerId != ''">
+            and customer_id = #{customerId}
+          </if>
+          <if test="carId != null and carId != ''">
+            and car_id = #{carId}
+          </if>
+          <if test="employeeName != null and employeeName != ''">
+            and e.name = #{employeeName}
+          </if>
+          <if test="status != null and status != ''">
+            and o.status = #{status}
+          </if>
+        </otherwise>
+      </choose>
+    </where>
+    <if test="orderBy != null and orderBy != ''">
+      order by ${orderBy}
+    </if>
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from order_details
     where id = #{id,jdbcType=VARCHAR}

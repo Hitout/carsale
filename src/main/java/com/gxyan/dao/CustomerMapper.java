@@ -1,7 +1,7 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.Customer;
-import com.gxyan.vo.CustomerList;
+import com.gxyan.vo.CustomerQuery;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public interface CustomerMapper {
 
     int updateByPrimaryKey(Customer record);
 
-    List<Customer> selectSelective(CustomerList customerList);
+    List<Customer> selectSelective(CustomerQuery customerQuery);
 
     Customer selectByIdCard(String idCard);
 }
