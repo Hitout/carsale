@@ -2,6 +2,7 @@ package com.gxyan.dao;
 
 import com.gxyan.common.Const;
 import com.gxyan.pojo.Order;
+import com.gxyan.vo.EmpChart;
 import com.gxyan.vo.OrderQuery;
 import com.gxyan.vo.OrderList;
 import org.junit.Test;
@@ -44,5 +45,11 @@ public class OrderMapperTest {
         OrderQuery orderQuery = new OrderQuery();
         List <OrderList> sales = orderMapper.selectSale(orderQuery);
         System.out.println(sales.toString());
+    }
+
+    @Test
+    public void selectChartByDate() {
+        List <EmpChart> empCharts = orderMapper.selectChartByDate("2019-01");
+        System.out.println(empCharts.toString());
     }
 }

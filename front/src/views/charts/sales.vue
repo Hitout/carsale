@@ -1,29 +1,29 @@
 <template>
   <div class="chart-container">
-    <chart height="100%" width="100%"/>
-    <el-form ref="form" :model="sizeForm" label-width="80px" size="mini" class="month-select">
+    <chart :option="option" height="100%" width="100%"/>
+    <el-form ref="form" label-width="100px" size="mini" class="month-select">
       <el-form-item label="时间">
-        <el-col :span="11">
-          <!-- <el-date-picker v-model="sizeForm.date1" type="date" placeholder="选择日期" style="width: 100%;"/> -->
-          <el-select v-model="month1" placeholder="月份" style="width: 100%;">
-            <el-option
-              v-for="item in options"
-              :key="item"
-              :label="item"
-              :value="item"/>
-          </el-select>
-        </el-col>
-        <el-col :span="2" class="line">-</el-col>
-        <el-col :span="11">
-          <!-- <el-time-picker v-model="sizeForm.date2" type="fixed-time" placeholder="选择时间" style="width: 100%;"/> -->
-          <el-select v-model="month2" placeholder="月份" style="width: 100%;">
-            <el-option
-              v-for="item in options"
-              :key="item"
-              :label="item"
-              :value="item"/>
-          </el-select>
-        </el-col>
+        <el-row :gutter="24">
+          <el-col :span="10">
+            <el-date-picker
+              v-model="start"
+              :picker-options="startPicker"
+              value-format="yyyy-MM"
+              type="month"
+              placeholder="开始时间"/>
+          </el-col>
+          <el-col :span="10">
+            <el-date-picker
+              v-model="end"
+              :picker-options="endPicker"
+              value-format="yyyy-MM"
+              type="month"
+              placeholder="结束时间"/>
+          </el-col>
+          <el-col :span="2">
+            <el-button type="primary" @click="changeChart">确定</el-button>
+          </el-col>
+        </el-row>
       </el-form-item>
     </el-form>
   </div>
@@ -31,25 +31,174 @@
 
 <script>
 import Chart from './components/mixChart'
+import { parseTime } from '@/utils'
+import { fetchSalesChart } from '@/api/chart'
 
 export default {
   name: 'MixChart',
   components: { Chart },
   data() {
     return {
-      options: ['一月', '二月'],
-      month1: undefined,
-      month2: undefined,
-      sizeForm: {
-        date1: '',
-        date2: ''
+      start: null,
+      end: null,
+      startPicker: {
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      },
+      endPicker: {
+        disabledDate: (time) => {
+          if (this.start != null) {
+            return time.getTime() > Date.now() || time.getTime() < this.start
+          }
+          return time.getTime() > Date.now()
+        }
+      },
+      option: {
+        start: undefined,
+        end: undefined,
+        xAxis: {
+          data: []
+        },
+        series: [{
+          data: [
+            327,
+            1776,
+            507,
+            1200,
+            800,
+            482,
+            204,
+            1390,
+            1001,
+            951,
+            381,
+            220
+          ]
+        }, {
+          data: [
+            1036,
+            3693,
+            2962,
+            3810,
+            2519,
+            1915,
+            1748,
+            4675,
+            6209,
+            4323,
+            2865,
+            4298
+          ]
+        }, {
+          data: [
+            709,
+            1917,
+            2455,
+            2610,
+            1719,
+            1433,
+            1544,
+            3285,
+            5208,
+            3372,
+            2484,
+            4078
+          ]
+        }]
       }
+    }
+  },
+  created() {
+    this.initDate()
+  },
+  methods: {
+    initDate() {
+      let tempDate = new Date()
+      tempDate.setFullYear(tempDate.getFullYear() - 1)
+      this.start = parseTime(tempDate, '{y}-{m}')
+      // console.log(tempDate.getMonth())
+      if (tempDate.getMonth() === 0) {
+        tempDate.setMonth(11)
+        this.end = parseTime(tempDate, '{y}-{m}')
+      } else {
+        tempDate = new Date()
+        tempDate.setMonth(tempDate.getMonth() - 1)
+        this.end = parseTime(tempDate, '{y}-{m}')
+      }
+      this.changeChart()
+    },
+    changeChart() {
+      if (this.start === null || this.end === null) {
+        return
+      }
+      console.log(this.start + ' --- ' + this.end)
+      fetchSalesChart(
+        this.start,
+        this.end
+      ).then(response => {
+        if (response.data.code === 20000) {
+          const temp = Object.assign({}, this.option)
+          const data = response.data.data
+          console.log(data)
+          const xData = []
+          const series = [{ data: [] }, { data: [] }, { data: [] }]
+          for (const v of data) {
+            xData.push(v.date)
+            series[0].data.push(v.income)
+            series[1].data.push(v.expenditure)
+            series[2].data.push(v.profit)
+          }
+          temp.start = parseTime(this.start, '{y}年{m}月')
+          temp.end = parseTime(this.end, '{y}年{m}月')
+          // const xData = this.getMonthAll(this.start, this.end)
+          temp.xAxis.data = xData
+          temp.series = series
+          console.log(temp)
+          this.option = temp
+        } else {
+          this.$notify({
+            title: '错误',
+            message: response.data.message,
+            type: 'error',
+            duration: 2000
+          })
+        }
+      })
+    },
+    getMonthAll(begin, end) {
+      const d1 = begin
+      const d2 = end
+      const dateArray = []
+      const s1 = d1.split('-')
+      const s2 = d2.split('-')
+      let mCount = 0
+      if (parseInt(s1[0]) < parseInt(s2[0])) {
+        mCount = (parseInt(s2[0]) - parseInt(s1[0])) * 12 + parseInt(s2[1]) - parseInt(s1[1]) + 1
+      } else {
+        mCount = parseInt(s2[1]) - parseInt(s1[1]) + 1
+      }
+      if (mCount > 0) {
+        let startM = parseInt(s1[1])
+        let startY = parseInt(s1[0])
+        for (let i = 0; i < mCount; i++) {
+          if (startM < 12) {
+            dateArray[i] = startY + '年' + (startM > 9 ? startM : '0' + startM) + '月'
+            startM += 1
+          } else {
+            dateArray[i] = startY + '年' + (startM > 9 ? startM : '0' + startM) + '月'
+            startM = 1
+            startY += 1
+          }
+        }
+      }
+      return dateArray
     }
   }
 }
 </script>
 
-<style scoped>
+<style>
 .chart-container{
   position: relative;
   width: 100%;
@@ -61,13 +210,7 @@ export default {
   right: 9%;
   color: aliceblue;
 }
-.line{
-  text-align: center;
-}
-</style>
-
-<style>
-.el-form-item__label{
+.month-select .el-form-item__label{
   color: aliceblue;
 }
 </style>

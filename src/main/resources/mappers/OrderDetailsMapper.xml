@@ -71,6 +71,46 @@
       order by ${orderBy}
     </if>
   </select>
+  <select id="selectYesterdayNum" resultType="java.lang.Integer">
+    select sum(car_number) value from order_details
+    INNER JOIN `order` on order_details.order_id = `order`.id
+    <![CDATA[
+    where TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) <= 1
+    ]]>
+  </select>
+  <select id="selectSalesChart" resultType="com.gxyan.vo.SalesChart">
+    -- 利润
+    SELECT e.date, income, expenditure, income-expenditure profit FROM base_month b
+      INNER JOIN (
+      -- 收入
+        SELECT date,IFNULL(SUM(total_price),0) income FROM base_month
+          LEFT JOIN `order` ON date = date_format(pay_time,'%Y-%m')
+        <![CDATA[
+        WHERE date <= #{end} AND date >= #{start}
+        ]]>
+        GROUP BY date
+      ) i ON i.date = b.date
+      INNER JOIN (
+        -- 支出
+        SELECT date,IFNULL(SUM((repertory+num)*price),0) expenditure FROM base_month
+          LEFT JOIN car ON date = date_format(create_time,'%Y-%m')
+          LEFT JOIN (
+            SELECT car_id,SUM(car_number) num FROM order_details
+            GROUP BY car_id
+          ) o on o.car_id = car.id
+        <![CDATA[
+        WHERE date <= #{end} AND date >= #{start}
+        ]]>
+        GROUP BY date
+      ) e ON e.date = b.date
+    GROUP BY e.date
+  </select>
+  <select id="selectIndexSales" resultType="com.gxyan.vo.IndexSales" parameterType="int">
+    SELECT SUM(total_price) sales,SUM(car_number) saleNum FROM `order`
+      INNER JOIN order_details ON order_id = `order`.id
+    WHERE DATE_FORMAT(pay_time,'%Y-%m') = DATE_FORMAT(NOW(),'%Y-%m')
+          AND employee_id = #{id}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from order_details
     where id = #{id,jdbcType=VARCHAR}

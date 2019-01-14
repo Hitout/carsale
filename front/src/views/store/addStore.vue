@@ -121,7 +121,7 @@ export default {
       addBrand: {
         brand: ''
       },
-      // brandOptions: [],
+      brandOptions: [],
       seriesOptions: [],
       delBrand: {
         brandId: undefined
@@ -194,6 +194,8 @@ export default {
         if (valid) {
           addBrand(this.addBrand.brand).then(response => {
             this.message(response)
+            this.getBrandOpt()
+            this.getSeriesOpt()
           })
         } else {
           return false
@@ -205,6 +207,8 @@ export default {
         if (valid) {
           delBrand(this.delBrand.brandId).then(response => {
             this.message(response)
+            this.getBrandOpt()
+            this.getSeriesOpt()
           })
         } else {
           return false
@@ -216,6 +220,7 @@ export default {
         if (valid) {
           addSeries(this.addSeries.brandId, this.addSeries.series).then(response => {
             this.message(response)
+            this.getSeriesOpt()
           })
         } else {
           return false
@@ -226,6 +231,7 @@ export default {
       if (this.delSeries.series[1] != null) {
         delSeries(this.delSeries.series[1]).then(response => {
           this.message(response)
+          this.getSeriesOpt()
         })
       } else {
         console.log('error del')

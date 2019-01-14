@@ -1,138 +1,164 @@
 <template>
-  <div class="fillcontain">
-    <!-- <head-top></head-top> -->
-    <header class="admin_title">管理员信息</header>
-    <div class="admin_set">
-      <ul>
-        <li>
-          <span>姓名：</span>
-          <span>{{ info.user_name }}</span>
-        </li>
-        <li>
-          <span>注册时间：</span>
-          <span>{{ info.create_time }}</span>
-        </li>
-        <li>
-          <span>管理员权限：</span>
-          <span>{{ info.admin }}</span>
-        </li>
-        <li>
-          <span>管理员 ID：</span>
-          <span>{{ info.id }}</span>
-        </li>
-        <!-- <li>
-          <span>更换头像：</span>
-          <el-upload
-            class="avatar-uploader"
-            :action="baseUrl + '/admin/update/avatar/' + info.id"
-            :show-file-list="false"
-            :on-success="uploadImg"
-            :before-upload="beforeImgUpload"
-          >
-            <img v-if="info.avatar" :src="baseImgPath + info.avatar" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-          </el-upload>
-        </li> -->
-      </ul>
+  <div class="r-echarts-line">
+    <div class="top">
+      <div class="title">
+        {{origin.title}}
+      </div>
+      <div class="select-list">
+        <Select style="width:120px;margin-right:.5rem" v-model="pagePick">
+          <Option v-for="item in origin.page_select" :key="item" :value="item.val">{{item.name}}</Option>
+        </Select>
+        <Select style="width:120px" v-model="typePick">
+          <Option v-for="item in typeList" :value="item.name" :key="item">{{item.name}}</Option>
+        </Select>
+      </div>
+    </div>
+    <div class="des">说明：符合于本次筛选条件的共有<span class='tips'>{{origin.desc}}</span>条<span style="font-weight:700;color:black">职位信息</span>。</div>
+    <div class="bottom" id="echart" ref="mychart">
+
     </div>
   </div>
 </template>
 
 <script>
-// import headTop from "../components/headTop";
-// import { mapState } from "vuex";
-// import { baseUrl, baseImgPath } from "@/config/env";
+// echarts相关
+let echarts = require('echarts/lib/echarts');
+require('echarts/lib/chart/bar');
+require('echarts/lib/component/tooltip');
+require('echarts/lib/component/toolbox');
+require('echarts/lib/component/legend');
+require('echarts/lib/component/markLine');
 
 export default {
-  data() {
+  name: 'r-echarts-line',
+  data () {
     return {
-      // baseUrl,
-      // baseImgPath
-      info: {
-        user_name: '',
-        create_time: undefined,
-        id: '2345623456'
+      typePick: '数值',
+      typeList: [
+        {
+          name: '数值'
+        },
+        {
+          name: '百分比'
+        }
+      ],
+      pagePick: 0,
+      // myChart实例
+      myChart: {},
+      percent: {
+        label: {
+          normal: {
+            show: true,
+            position: 'inside',
+            formatter: '{c}%'
+          }
+        }
+      },
+      numeric: {
+        label: {
+          normal: {
+            show: true,
+            position: 'inside',
+            formatter: '{c}'
+          }
+        }
+      }
+    }
+  },
+  props: {
+    index: {
+      required: true,
+      type: Number
+    },
+    data: {
+      required: true,
+      type: Object
+    }
+  },
+  mounted () {
+    this.setEchart();
+  },
+  updated () {
+    if (!this.myChart) {
+      this.setEchart();
+    }
+    this.chartChange();
+  },
+  computed: {
+    origin () {
+      return this.data;
+    },
+    opt() {
+      let that = this;
+      let obj = {
+        color: ['#606c94'],
+        tooltip: {
+        },
+        toolbox: {
+          show: true,
+          feature: {
+            saveAsImage: {show: true}
+          }
+        },
+        label: {
+          normal: {
+            show: true,
+            position: 'inside',
+            formatter: '{c}'
+          },
+          emphasis: {
+            show: true
+          }
+        },
+        xAxis: {
+          type: 'value',
+        },
+        yAxis: {
+          data: that.origin[that.type][that.pagePick].key,
+          axisLabel: {
+            interval: 0,
+            rotate: -30
+          }
+        },
+        series: [{
+          name: that.origin.title,
+          type: 'bar',
+          data: that.origin[that.type][that.pagePick].val,
+          barMaxWidth: '30',
+          markLine: {
+            data: [
+              {type: 'average', name: '平均值'}
+            ]
+          }
+        }]
+      }
+      return obj;
+    },
+    type () {
+      if (this.typePick == '数值') {
+        return 'numeric';
+      } else if (this.typePick == '百分比') {
+        return 'percent';
+      } else {
+        return 'numeric';
+      }
+    }
+  },
+  methods: {
+    setEchart () {
+      let dom = this.$refs.mychart;
+      this.myChart = echarts.init(dom);
+      this.myChart.setOption(this.opt);
+    },
+    chartChange () {
+      this.myChart.setOption(this.opt);
+      if (this.typePick == '百分比') {
+        this.myChart.setOption(this.percent);
+      }
+      if (this.typePick == '数值') {
+        this.myChart.setOption(this.numeric);
       }
     }
   }
-  // components: {
-  //   headTop
-  // },
-  // computed: {
-  //     ...mapState(['info']),
-  // },
-  // methods: {
-  //   uploadImg(res, file) {
-  //     if (res.status == 1) {
-  //       this.info.avatar = res.image_path
-  //     } else {
-  //       this.$message.error("上传图片失败！")
-  //     }
-  //   },
-  //   beforeImgUpload(file) {
-  //     const isRightType =
-  //       file.type === "image/jpeg" || file.type === "image/png"
-  //     const isLt2M = file.size / 1024 / 1024 < 2;
-  //     if (!isRightType) {
-  //       this.$message.error("上传头像图片只能是 JPG 格式!")
-  //     }
-  //     if (!isLt2M) {
-  //       this.$message.error("上传头像图片大小不能超过 2MB!")
-  //     }
-  //     return isRightType && isLt2M
-  //   }
-  // }
 }
 </script>
-
-<style rel="stylesheet/scss" lang="scss" scoped>
-/* @import '../style/mixin'; */
-.explain_text {
-  margin-top: 20px;
-  text-align: center;
-  font-size: 20px;
-  color: #333;
-}
-.admin_set {
-  width: 60%;
-  background-color: #f9fafc;
-  min-height: 400px;
-  margin: 20px auto 0;
-  border-radius: 10px;
-  ul > li {
-    padding: 20px;
-    span {
-      color: #666;
-    }
-  }
-}
-.admin_title {
-  margin-top: 20px;
-  // .sc(24px, #666);
-  text-align: center;
-}
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  margin-top: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-.avatar-uploader .el-upload:hover {
-  border-color: #20a0ff;
-}
-.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 120px;
-  height: 120px;
-  line-height: 120px;
-  text-align: center;
-}
-.avatar {
-  width: 120px;
-  height: 120px;
-  display: block;
-}
-</style>

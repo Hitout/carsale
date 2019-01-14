@@ -1,9 +1,8 @@
 package com.gxyan.dao;
 
 import com.gxyan.pojo.OrderDetails;
-import com.gxyan.vo.Details;
-import com.gxyan.vo.DetailsList;
-import com.gxyan.vo.DetailsQuery;
+import com.gxyan.vo.*;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -25,4 +24,10 @@ public interface OrderDetailsMapper {
     List<Details> selectDetailsByOrderId(Long orderId);
 
     List<DetailsList> selectSelective(DetailsQuery detailsQuery);
+
+    int selectYesterdayNum();
+
+    List<SalesChart> selectSalesChart(@Param("start") String start, @Param("end") String end);
+
+    IndexSales selectIndexSales(Integer id);
 }

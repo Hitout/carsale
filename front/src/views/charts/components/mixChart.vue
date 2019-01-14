@@ -4,10 +4,9 @@
 
 <script>
 import echarts from 'echarts'
-import resize from './mixins/resize'
+import { debounce } from '@/utils'
 
 export default {
-  mixins: [resize],
   props: {
     className: {
       type: String,
@@ -24,39 +23,25 @@ export default {
     height: {
       type: String,
       default: '200px'
+    },
+    option: {
+      type: Object,
+      default: null
     }
   },
   data() {
     return {
-      start: '2018年01月',
-      end: '2018年12月',
-      chart: null
+      // start: '2018年01月',
+      // end: '2018年12月',
+      myChart: null
     }
   },
-  mounted() {
-    this.initChart()
-  },
-  beforeDestroy() {
-    if (!this.chart) {
-      return
-    }
-    this.chart.dispose()
-    this.chart = null
-  },
-  methods: {
-    initChart() {
-      this.chart = echarts.init(document.getElementById(this.id))
-      const xData = (function() {
-        const data = []
-        for (let i = 1; i < 13; i++) {
-          data.push(i + '月')
-        }
-        return data
-      }())
-      this.chart.setOption({
+  computed: {
+    opt() {
+      const obj = {
         backgroundColor: '#344b58',
         title: {
-          text: this.start + '-' + this.end + ' 销量报表',
+          text: this.option.start + '-' + this.option.end + ' 销量报表',
           x: '20',
           top: '20',
           textStyle: {
@@ -81,7 +66,6 @@ export default {
           feature: {
             mark: { show: true },
             dataView: { show: true, readOnly: false },
-            // magicType: { show: true, type: ['line', 'bar'] },
             magicType: { show: true, type: ['line', 'bar', 'stack', 'tiled'] },
             restore: { show: true },
             saveAsImage: { show: true }
@@ -125,7 +109,7 @@ export default {
           axisLabel: {
             interval: 0
           },
-          data: xData
+          data: this.option.xAxis.data
         }],
         yAxis: [{
           type: 'value',
@@ -171,34 +155,9 @@ export default {
             show: false
           }
         }],
-        // dataZoom: [{
-        //   show: true,
-        //   height: 30,
-        //   xAxisIndex: [
-        //     0
-        //   ],
-        //   bottom: 30,
-        //   start: 10,
-        //   end: 80,
-        //   handleIcon: 'path://M306.1,413c0,2.2-1.8,4-4,4h-59.8c-2.2,0-4-1.8-4-4V200.8c0-2.2,1.8-4,4-4h59.8c2.2,0,4,1.8,4,4V413z',
-        //   handleSize: '110%',
-        //   handleStyle: {
-        //     color: '#d3dee5'
-        //   },
-        //   textStyle: {
-        //     color: '#fff' },
-        //   borderColor: '#90979c'
-        // }, {
-        //   type: 'inside',
-        //   show: true,
-        //   height: 15,
-        //   start: 1,
-        //   end: 35
-        // }],
         series: [{
           name: '利润',
           type: 'line',
-          // stack: 'total',
           symbolSize: 10,
           symbol: 'circle',
           yAxisIndex: 1,
@@ -215,20 +174,7 @@ export default {
               }
             }
           },
-          data: [
-            327,
-            1776,
-            507,
-            1200,
-            800,
-            482,
-            204,
-            1390,
-            1001,
-            951,
-            381,
-            220
-          ]
+          data: this.option.series[2].data
         },
         {
           name: '收入',
@@ -241,35 +187,25 @@ export default {
               color: 'rgba(255,144,128,1)',
               label: {
                 show: true,
+                position: 'top',
                 textStyle: {
                   color: '#fff'
                 },
-                position: 'insideTop',
+                // position: 'insideTop',
                 formatter(p) {
                   return p.value > 0 ? p.value : ''
                 }
               }
             }
           },
-          data: [
-            1036,
-            3693,
-            2962,
-            3810,
-            2519,
-            1915,
-            1748,
-            4675,
-            6209,
-            4323,
-            2865,
-            4298
-          ]
+          data: this.option.series[0].data
         },
         {
           name: '支出',
           type: 'bar',
           // stack: 'total',
+          barMaxWidth: 35,
+          barGap: '10%',
           itemStyle: {
             normal: {
               color: 'rgba(0,191,183,1)',
@@ -283,23 +219,47 @@ export default {
               }
             }
           },
-          data: [
-            709,
-            1917,
-            2455,
-            2610,
-            1719,
-            1433,
-            1544,
-            3285,
-            5208,
-            3372,
-            2484,
-            4078
-          ]
-        }
-        ]
-      })
+          data: this.option.series[1].data
+        }]
+      }
+      return obj
+    }
+  },
+  watch: {
+    option: function() {
+      this.chartChange()
+    }
+  },
+  updated() {
+    if (!this.myChart) {
+      this.initChart()
+    }
+    this.ChartChange()
+  },
+  mounted() {
+    this.initChart()
+    this.__resizeHandler = debounce(() => {
+      if (this.myChart) {
+        this.myChart.resize()
+      }
+    }, 100)
+    window.addEventListener('resize', this.__resizeHandler)
+  },
+  beforeDestroy() {
+    if (!this.myChart) {
+      return
+    }
+    window.removeEventListener('resize', this.__resizeHandler)
+    this.myChart.dispose()
+    this.myChart = null
+  },
+  methods: {
+    initChart() {
+      this.myChart = echarts.init(document.getElementById(this.id))
+      this.myChart.setOption(this.opt)
+    },
+    chartChange() {
+      this.myChart.setOption(this.opt)
     }
   }
 }

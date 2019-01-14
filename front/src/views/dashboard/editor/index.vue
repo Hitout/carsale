@@ -4,7 +4,7 @@
       <el-row :gutter="40" class="panel-group">
         <el-col :xs="24" :sm="24" :lg="8" class="info-container">
           <span style="font-size:20px">欢迎您</span><br>
-          <span class="display_name">李狗蛋</span>
+          <span class="display_name">{{ name }}</span>
         </el-col>
         <el-col :xs="24" :sm="12" :lg="6" class="card-panel-col">
           <div class="card-panel">
@@ -13,7 +13,7 @@
             </div>
             <div class="card-panel-description">
               <div class="card-panel-text">本月销售额</div>
-              <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num"/>
+              <count-to :start-val="0" :end-val="sales" :duration="3200" class="card-panel-num"/>
             </div>
           </div>
         </el-col>
@@ -24,7 +24,7 @@
             </div>
             <div class="card-panel-description">
               <div class="card-panel-text">本月销量</div>
-              <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num"/>
+              <count-to :start-val="0" :end-val="saleNum" :duration="1600" class="card-panel-num"/>
             </div>
           </div>
         </el-col>
@@ -39,13 +39,16 @@
 <script>
 import { mapGetters } from 'vuex'
 import CountTo from 'vue-count-to'
+import { fetchIndexSales } from '@/api/chart'
 
 export default {
   name: 'DashboardEditor',
   components: { CountTo },
   data() {
     return {
-      emptyGif: 'https://wpimg.wallstcn.com/0e03b7da-db9e-4819-ba10-9016ddfdaed3'
+      emptyGif: 'https://wpimg.wallstcn.com/0e03b7da-db9e-4819-ba10-9016ddfdaed3',
+      sales: null,
+      saleNum: null
     }
   },
   computed: {
@@ -54,6 +57,19 @@ export default {
       'avatar',
       'roles'
     ])
+  },
+  created() {
+    this.getData()
+  },
+  methods: {
+    getData() {
+      fetchIndexSales(this.$store.getters.id).then(response => {
+        if (response.data.code === 20000) {
+          this.sales = response.data.data.sales
+          this.saleNum = response.data.data.saleNum
+        }
+      })
+    }
   }
 }
 </script>

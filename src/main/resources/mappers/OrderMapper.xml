@@ -48,6 +48,20 @@
       order by ${orderBy}
     </if>
   </select>
+  <select id="selectChartByDate" resultType="com.gxyan.vo.EmpChart" parameterType="string">
+    select e.`name` name,SUM(total_price) value from `order`
+      INNER JOIN employee e on `order`.employee_id = e.id
+    where date_format(pay_time,'%Y-%m')=#{date}
+    GROUP BY employee_id
+  </select>
+  <select id="selectYesterdayChart" resultType="com.gxyan.vo.EmpChart">
+    select e.`name`,SUM(total_price) value from `order`
+    INNER JOIN employee e on `order`.employee_id = e.id
+    <![CDATA[
+    where TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) <= 1
+    ]]>
+    GROUP BY employee_id
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from `order`
     where id = #{id,jdbcType=BIGINT}

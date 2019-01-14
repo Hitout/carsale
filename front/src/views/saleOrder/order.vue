@@ -84,7 +84,7 @@
           <span>￥ {{ scope.row.totalPrice }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="销售员" width="80px" align="center">
+      <el-table-column label="销售员" width="105px" align="center">
         <template slot-scope="scope">
           <span>{{ scope.row.employeeName }}</span>
         </template>

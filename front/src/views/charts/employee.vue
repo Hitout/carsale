@@ -1,33 +1,83 @@
 <template>
   <div class="chart-container">
-    <chart height="100%" width="100%"/>
+    <chart
+      :option="option"
+      height="100%"
+      width="100%"/>
     <div class="block month-select">
       <el-date-picker
-        v-model="month"
+        v-model="date"
+        :picker-options="pickerOpt"
         type="month"
-        placeholder="月份"/>
+        placeholder="月份"
+        @change="changeChart"/>
     </div>
-    <!--<el-select v-model="month" placeholder="月份" class="month-select">
-      <el-option
-        v-for="item in options"
-        :key="item"
-        :label="item"
-        :value="item"/>
-    </el-select>-->
   </div>
 </template>
 
 <script>
 import Chart from './components/PieChart'
+import { parseTime } from '@/utils'
+import { fetchEmpChart } from '@/api/chart'
 
 export default {
   name: 'PieChart',
   components: { Chart },
   data() {
     return {
-      // options: ['一月', '二月'],
-      month: undefined,
-      chart: null
+      // currentDate: new Date(),
+      date: null,
+      pickerOpt: {
+        disabledDate(time) {
+          return time.getTime() > Date.now() - 8.64e6
+        }
+      },
+      option: {
+        date: null,
+        legend: {
+          data: []
+        },
+        series: {
+          data: []
+        }
+      }
+    }
+  },
+  created() {
+    this.date = new Date()
+    this.changeChart()
+  },
+  methods: {
+    changeChart() {
+      if (this.date === null) {
+        return
+      }
+      if (this.date > new Date()) {
+        this.$message.error('输入错误')
+        return
+      }
+      const temp = Object.assign({}, this.option)
+      fetchEmpChart(parseTime(this.date, '{y}-{m}')).then(response => {
+        if (response.data.code === 20000) {
+          temp.series.data = response.data.data
+          const legendData = []
+          for (const v of temp.series.data) {
+            legendData.push(v.name)
+          }
+          temp.legend.data = legendData
+          temp.date = parseTime(this.date, '{y}年{m}月')
+          // console.log(temp.month + this.date)
+          // console.log(temp)
+          this.option = temp
+        } else {
+          this.$notify({
+            title: '错误',
+            message: response.data.message,
+            type: 'error',
+            duration: 2000
+          })
+        }
+      })
     }
   }
 }
