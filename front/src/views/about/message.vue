@@ -16,11 +16,11 @@
             </li>
             <li>
               <label>角色：</label>
-              <span>{{ info.role }}</span>
+              <span>{{ info.role | rulesFilter }}</span>
             </li>
             <li>
               <label>入职时间：</label>
-              <span>{{ info.entryTime }}</span>
+              <span>{{ info.entryTime | parseTime('{y}年{m}月{d}日') }}</span>
             </li>
             <li>
               <label>薪资：</label>
@@ -40,25 +40,25 @@
               <label>性别：</label>
               <span>{{ info.gender }}</span>
             </li>
-            <li>
+            <!--<li>
               <label>年龄：</label>
               <span>{{ info.age }}</span>
-            </li>
+            </li>-->
             <li>
               <label>状态：</label>
-              <span>{{ info.status }}</span>
+              <span>{{ info.status | typeFilter }}</span>
             </li>
           </el-col>
         </el-row>
       </ul>
       <div class="edit-button">
-        <el-button type="primary" @click="handleUpdate()">修改信息</el-button>
-        <el-button type="primary" @click="passwordUpdate()">修改密码</el-button>
+        <el-button type="primary" @click="handleUpdate">修改信息</el-button>
+        <el-button type="primary" @click="passwordUpdate">修改密码</el-button>
       </div>
     </div>
 
     <el-dialog :visible.sync="dialogFormVisible" title="修改信息">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+      <el-form ref="temp" :rules="rules" :model="temp" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="temp.name"/>
         </el-form-item>
@@ -74,7 +74,7 @@
             <el-radio label="女"/>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="年龄" prop="age">
+        <!--<el-form-item label="年龄" prop="age">
           <el-input v-model.number="temp.age"/>
         </el-form-item>
         <el-form-item label="薪资/月" prop="salary">
@@ -87,28 +87,28 @@
           <el-select v-model="temp.status" placeholder="请选择">
             <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
           </el-select>
-        </el-form-item>
+        </el-form-item>-->
         <el-form-item>
           <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="updateData()">确 认</el-button>
+          <el-button type="primary" @click="updateData">确 认</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
 
     <el-dialog :visible.sync="dialogPassVisible" title="修改密码">
-      <el-form ref="dataForm" :rules="rules" :model="ruleForm" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
+      <el-form ref="ruleForm" :rules="rules" :model="ruleForm" label-position="left" label-width="100px" style="width: 400px; margin-left:50px;">
         <el-form-item label="旧密码" prop="oldPass">
-          <el-input v-model="ruleForm.oldPass" type="password" autocomplete="off"/>
+          <el-input v-model="ruleForm.oldPass" type="password" auto-complete="off"/>
         </el-form-item>
         <el-form-item label="新密码" prop="newPass">
-          <el-input v-model="ruleForm.newPass" type="password" autocomplete="off"/>
+          <el-input v-model="ruleForm.newPass" type="password" auto-complete="off"/>
         </el-form-item>
         <el-form-item label="确认密码" prop="checkPass">
-          <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off"/>
+          <el-input v-model="ruleForm.checkPass" type="password" auto-complete="off"/>
         </el-form-item>
         <el-form-item>
           <el-button @click="dialogPassVisible = false">取 消</el-button>
-          <el-button type="primary" @click="updateData()">确 认</el-button>
+          <el-button type="primary" @click="updatePass">确 认</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -116,23 +116,58 @@
 </template>
 
 <script>
-import { updateArticle } from '@/api/article'
+// import { updateArticle } from '@/api/article'
 import { validateIdCard, validateAge, validateSalary } from '@/utils/validate'
+import { updateMessage, validPassword, updatePassword } from '@/api/user'
+import { getUserInfo } from '@/api/login'
+
+const rulesOptions = [
+  { key: '1', display_name: '销售' },
+  { key: '0', display_name: '经理' }
+]
+const statusOptions = [
+  { key: '1', display_name: '在职' },
+  { key: '0', display_name: '已离职' }
+]
+
+const rulesTypeKeyValue = rulesOptions.reduce((acc, cur) => {
+  acc[cur.key] = cur.display_name
+  return acc
+}, {})
+
+const statusTypeKeyValue = statusOptions.reduce((acc, cur) => {
+  acc[cur.key] = cur.display_name
+  return acc
+}, {})
 
 export default {
+  filters: {
+    typeFilter(type) {
+      return statusTypeKeyValue[type]
+    },
+    rulesFilter(type) {
+      return rulesTypeKeyValue[type]
+    }
+  },
   data() {
-    var validateOldPass = (rule, value, callback) => {
+    const validateOldPass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入旧密码'))
-      } else if (value !== this.info.pass) {
-        callback(new Error('旧密码不正确!'))
       } else {
-        callback()
+        validPassword(value).then(response => {
+          if (response.data.code === 20000) {
+            callback()
+          } else {
+            callback(new Error('旧密码不正确!'))
+          }
+        })
       }
     }
-    var validatePass = (rule, value, callback) => {
+    const validatePass = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请输入密码'))
+      } else if (value.length < 6) {
+        callback(new Error('密码长度不得少于6个字符'))
       } else {
         if (this.ruleForm.checkPass !== '') {
           // this.$refs.ruleForm.validateField('checkPass')
@@ -140,7 +175,7 @@ export default {
         callback()
       }
     }
-    var validatePass2 = (rule, value, callback) => {
+    const validatePass2 = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'))
       } else if (value !== this.ruleForm.newPass) {
@@ -151,28 +186,26 @@ export default {
     }
     return {
       info: {
-        name: '张三',
-        id: '2345623456',
-        role: '销售',
-        entryTime: '2018年09月18日',
-        salary: 5600,
-        phone: '12345612345',
-        idCard: '431762198708133546',
-        gender: '男',
-        age: 28,
-        status: '在职',
-        pass: '123'
+        name: null,
+        id: null,
+        role: null,
+        entryTime: null,
+        salary: null,
+        phone: null,
+        idCard: null,
+        gender: null,
+        // age: 28,
+        status: null,
+        pass: null
       },
+      statusOptions,
+      rulesOptions,
       temp: {
-        name: '',
         id: '',
-        role: '',
-        entryTime: '',
-        salary: undefined,
+        name: '',
         phone: '',
         idCard: '',
-        gender: '',
-        age: undefined
+        gender: ''
       },
       ruleForm: {
         oldPass: '',
@@ -181,7 +214,6 @@ export default {
       },
       dialogFormVisible: false,
       dialogPassVisible: false,
-      statusOptions: ['在职', '已离职'],
       rules: {
         name: [
           { required: true, message: '请输入员工姓名', trigger: 'blur' }
@@ -219,40 +251,71 @@ export default {
       }
     }
   },
+  created() {
+    this.getInfo()
+  },
   methods: {
+    getInfo() {
+      getUserInfo(this.$store.getters.token).then(response => {
+        if (response.data.code === 20000) {
+          this.info = response.data.data
+        }
+      })
+    },
     handleUpdate() {
       this.temp = Object.assign({}, this.info) // copy obj
       this.dialogFormVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['temp'].clearValidate()
       })
     },
     passwordUpdate() {
       this.dialogPassVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['ruleForm'].clearValidate()
+      })
+    },
+    updatePass() {
+      this.$refs['ruleForm'].validate((valid) => {
+        if (valid) {
+          updatePassword({
+            oldPass: this.ruleForm.oldPass,
+            newPass: this.ruleForm.newPass
+          }).then(response => {
+            if (response.data.code === 20000) {
+              this.$notify({
+                title: '成功',
+                message: '修改成功',
+                type: 'success',
+                duration: 2000
+              })
+            }
+          })
+        } else {
+          this.$message.error('验证失败无法提交')
+        }
       })
     },
     updateData() {
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['temp'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
-                break
-              }
+          updateMessage({
+            id: tempData.id,
+            name: tempData.name,
+            phone: tempData.phone,
+            idCard: tempData.idCard,
+            gender: tempData.gender
+          }).then(response => {
+            if (response.data.code === 20000) {
+              this.dialogFormVisible = false
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
             }
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
           })
         }
       })

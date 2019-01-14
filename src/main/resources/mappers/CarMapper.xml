@@ -58,7 +58,7 @@
     select
     id, type, color, sale_price salePrice
     from car
-    where series_id = #{seriesId}
+    where series_id = #{seriesId} and repertory > 0
   </select>
   <select id="selectRepertoryByPrimaryKey" resultType="java.lang.Integer">
     select repertory

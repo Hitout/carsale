@@ -24,4 +24,8 @@ public interface EmployeeMapper {
     Employee selectLogin(@Param("id") Integer id, @Param("password") String password);
 
     List<Employee> selectSelective(EmployeeQuery employeeQuery);
+
+    String selectPasswordByPrimaryKey(Integer id);
+
+    int updatePasswordByPrimaryKeyAndOldPass(@Param("id") Integer id, @Param("oldPass") String oldPass, @Param("newPass") String newPass);
 }

@@ -34,7 +34,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
         employee.setRole(Const.Number.ONE);
         log.info(employee.toString());
         int resultCount = employeeMapper.insert(employee);
-        if (resultCount != 0) {
+        if (resultCount > 0) {
             return ServerResponse.createBySuccess();
         }
         return ServerResponse.createByErrorMessage("添加失败");
@@ -43,7 +43,7 @@ public class EmployeeServiceImpl implements IEmployeeService {
     @Override
     public ServerResponse updateEmployee(Employee employee) {
         int resultCount = employeeMapper.updateByPrimaryKeySelective(employee);
-        if (resultCount != 0) {
+        if (resultCount > 0) {
             return ServerResponse.createBySuccess();
         }
         return ServerResponse.createByErrorMessage("更新失败");
@@ -59,6 +59,24 @@ public class EmployeeServiceImpl implements IEmployeeService {
             return ServerResponse.createBySuccess(listVo);
         }
         return ServerResponse.createByErrorMessage("获取客户列表失败");
+    }
+
+    @Override
+    public ServerResponse validPassword(Integer id, String validPass) {
+        String password = employeeMapper.selectPasswordByPrimaryKey(id);
+        if (password.equals(validPass)) {
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByError();
+    }
+
+    @Override
+    public ServerResponse updatePassword(Integer id, String oldPass, String newPass) {
+        int resultCount = employeeMapper.updatePasswordByPrimaryKeyAndOldPass(id, oldPass, newPass);
+        if (resultCount > 0) {
+            return ServerResponse.createBySuccess();
+        }
+        return ServerResponse.createByErrorMessage("更新失败");
     }
 
     /**

@@ -14,4 +14,8 @@ public interface IEmployeeService {
     ServerResponse updateEmployee(Employee employee);
 
     ServerResponse getList(EmployeeQuery employeeQuery);
+
+    ServerResponse validPassword(Integer id, String validPass);
+
+    ServerResponse updatePassword(Integer id, String oldPass, String newPass);
 }

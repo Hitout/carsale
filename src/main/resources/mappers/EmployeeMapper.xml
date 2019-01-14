@@ -64,6 +64,10 @@
       order by ${orderBy}
     </if>
   </select>
+  <select id="selectPasswordByPrimaryKey" resultType="java.lang.String">
+    select password from employee
+    where id = #{id}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from employee
     where id = #{id,jdbcType=INTEGER}
@@ -190,5 +194,10 @@
       entry_time = #{entryTime,jdbcType=DATE},
       status = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updatePasswordByPrimaryKeyAndOldPass">
+    update employee
+    set password = #{newPass}
+    where id = #{id} and password = #{oldPass}
   </update>
 </mapper>

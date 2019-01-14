@@ -3,6 +3,7 @@ package com.gxyan.controller;
 import com.gxyan.common.Const;
 import com.gxyan.common.ServerResponse;
 import com.gxyan.pojo.Employee;
+import com.gxyan.service.IEmployeeService;
 import com.gxyan.service.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ public class UserController {
 
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IEmployeeService employeeService;
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
     public ServerResponse login( String employeeId, String password, HttpSession session) {
@@ -48,13 +51,27 @@ public class UserController {
 
     @RequestMapping(value = "info", method = RequestMethod.POST)
     public ServerResponse<Employee> info(HttpSession session) {
-        log.info("user_info");
         Employee employee = (Employee) session.getAttribute(Const.CURRENT_USER);
         if (employee == null) {
-            log.error("无法获取当前用户信息");
             return ServerResponse.createByErrorMessage("用户未登录，无法获取当前用户信息");
         }
-//        log.info("get info:{}",employee.toString());
         return ServerResponse.createBySuccess(employee);
+    }
+
+    @RequestMapping(value = "updateMessage", method = RequestMethod.POST)
+    public ServerResponse updateMessage(Employee employee) {
+        return employeeService.updateEmployee(employee);
+    }
+
+    @RequestMapping(value = "validPassword", method = RequestMethod.POST)
+    public ServerResponse validPassword(HttpSession session, String validPass) {
+        Employee employee = (Employee) session.getAttribute(Const.CURRENT_USER);
+        return employeeService.validPassword(employee.getId(), validPass);
+    }
+
+    @RequestMapping(value = "updatePassword", method = RequestMethod.POST)
+    public ServerResponse updatePassword(HttpSession session, String oldPass, String newPass) {
+        Employee employee = (Employee) session.getAttribute(Const.CURRENT_USER);
+        return employeeService.updatePassword(employee.getId(), oldPass, newPass);
     }
 }

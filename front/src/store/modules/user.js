@@ -84,7 +84,7 @@ const user = {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
           if (response.data.code !== 20000) {
-            reject('error get user info')
+            reject('获取用户信息失败，请重新登录')
           }
           const data = response.data.data
 

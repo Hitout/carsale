@@ -16,7 +16,6 @@ export function logout() {
 }
 
 export function getUserInfo(token) {
-  console.log('获取用户信息')
   return request({
     url: '/user/info',
     method: 'post',
