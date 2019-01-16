@@ -41,6 +41,11 @@ export function validateEmail(email) {
   return re.test(email)
 }
 
+export function validIdCard(idCard) {
+  const re = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
+  return re.test(idCard)
+}
+
 /* 合法身份证*/
 export var validateIdCard = (rule, value, callback) => {
   if (value === '' || value === undefined) {

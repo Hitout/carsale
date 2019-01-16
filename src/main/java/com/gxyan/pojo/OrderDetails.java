@@ -1,46 +1,49 @@
 package com.gxyan.pojo;
 
+import lombok.ToString;
+
+@ToString
 public class OrderDetails {
-    private Integer id;
+    private String id;
 
-    private Integer orderId;
+    private Long orderId;
 
-    private Integer carId;
+    private Long carId;
 
     private Integer carNumber;
 
-    public OrderDetails(Integer id, Integer orderId, Integer carId, Integer carNumber) {
+    public OrderDetails() {
+        super();
+    }
+
+    public OrderDetails(String id, Long orderId, Long carId, Integer carNumber) {
         this.id = id;
         this.orderId = orderId;
         this.carId = carId;
         this.carNumber = carNumber;
     }
 
-    public OrderDetails() {
-        super();
-    }
-
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public Integer getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Integer orderId) {
+    public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
 
-    public Integer getCarId() {
+    public Long getCarId() {
         return carId;
     }
 
-    public void setCarId(Integer carId) {
+    public void setCarId(Long carId) {
         this.carId = carId;
     }
 

@@ -3,29 +3,122 @@
 <mapper namespace="com.gxyan.dao.OrderDetailsMapper">
   <resultMap id="BaseResultMap" type="com.gxyan.pojo.OrderDetails">
     <constructor>
-      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
-      <arg column="order_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
-      <arg column="car_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <idArg column="id" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="order_id" javaType="java.lang.Long" jdbcType="BIGINT" />
+      <arg column="car_id" javaType="java.lang.Long" jdbcType="BIGINT" />
       <arg column="car_number" javaType="java.lang.Integer" jdbcType="INTEGER" />
     </constructor>
   </resultMap>
   <sql id="Base_Column_List">
     id, order_id, car_id, car_number
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from order_details
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <select id="selectByOrderId" resultType="com.gxyan.pojo.OrderDetails">
+    select order_details.id, order_id orderId, car_id carId, car_number carNumber
+    from order_details
+    inner join `order` o on order_details.order_id = o.id
+    where order_id = #{orderId}
+  </select>
+  <select id="selectDetailsByOrderId" resultType="com.gxyan.vo.Details">
+    select order_details.id, c.id carId, type, color, sale_price salePrice,
+                             b.brand_id brandId, b.brand_name brandName,
+                             s.series_id seriesId, s.series_name seriesName,
+                             order_details.car_number carNumber
+    from order_details
+      inner join car c on order_details.car_id = c.id
+      inner join series s on c.series_id = s.series_id
+      inner join brand b on s.brand_id = b.brand_id
+    where order_id = #{orderId}
+  </select>
+  <select id="selectSelective" resultType="com.gxyan.vo.DetailsList" parameterType="com.gxyan.vo.DetailsQuery">
+    select order_details.id, order_details.order_id orderId,
+      car_id carId, customer_id customerId,
+      e.name employeeName, car_number carNumber,
+      create_time createTime, update_time updateTime, o.status
+    from order_details
+      inner join `order` o on order_details.order_id = o.id
+      inner join employee e on o.employee_id = e.id
+    <where>
+      <choose>
+        <when test="id != null and id != ''">
+          order_details.id = #{id}
+        </when>
+        <otherwise>
+          <if test="orderId != null and orderId != ''">
+            and order_details.order_id = #{orderId}
+          </if>
+          <if test="customerId != null and customerId != ''">
+            and customer_id = #{customerId}
+          </if>
+          <if test="carId != null and carId != ''">
+            and car_id = #{carId}
+          </if>
+          <if test="employeeName != null and employeeName != ''">
+            and e.name = #{employeeName}
+          </if>
+          <if test="status != null and status != ''">
+            and o.status = #{status}
+          </if>
+        </otherwise>
+      </choose>
+    </where>
+    <if test="orderBy != null and orderBy != ''">
+      order by ${orderBy}
+    </if>
+  </select>
+  <select id="selectYesterdayNum" resultType="java.lang.Integer">
+    select IFNULL(sum(car_number),0) value from order_details
+    INNER JOIN `order` on order_details.order_id = `order`.id
+    <![CDATA[
+    where TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) < 2 and TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) > 1
+    ]]>
+  </select>
+  <select id="selectSalesChart" resultType="com.gxyan.vo.SalesChart">
+    -- 利润
+    SELECT e.date, income, expenditure, income-expenditure profit FROM base_month b
+      INNER JOIN (
+      -- 收入
+        SELECT date,IFNULL(SUM(total_price),0) income FROM base_month
+          LEFT JOIN `order` ON date = date_format(pay_time,'%Y-%m')
+        <![CDATA[
+        WHERE date <= #{end} AND date >= #{start}
+        ]]>
+        GROUP BY date
+      ) i ON i.date = b.date
+      INNER JOIN (
+        -- 支出
+        SELECT date,IFNULL(SUM((repertory+num)*price),0) expenditure FROM base_month
+          LEFT JOIN car ON date = date_format(create_time,'%Y-%m')
+          LEFT JOIN (
+            SELECT car_id,SUM(car_number) num FROM order_details
+            GROUP BY car_id
+          ) o on o.car_id = car.id
+        <![CDATA[
+        WHERE date <= #{end} AND date >= #{start}
+        ]]>
+        GROUP BY date
+      ) e ON e.date = b.date
+    GROUP BY e.date
+  </select>
+  <select id="selectIndexSales" resultType="com.gxyan.vo.IndexSales" parameterType="int">
+    SELECT SUM(total_price) sales,SUM(car_number) saleNum FROM `order`
+      INNER JOIN order_details ON order_id = `order`.id
+    WHERE DATE_FORMAT(pay_time,'%Y-%m') = DATE_FORMAT(NOW(),'%Y-%m')
+          AND employee_id = #{id}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from order_details
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.OrderDetails">
     insert into order_details (id, order_id, car_id, 
       car_number)
-    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=VARCHAR}, #{orderId,jdbcType=BIGINT}, #{carId,jdbcType=BIGINT},
       #{carNumber,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.OrderDetails">
@@ -46,13 +139,13 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=VARCHAR},
       </if>
       <if test="orderId != null">
-        #{orderId,jdbcType=INTEGER},
+        #{orderId,jdbcType=BIGINT},
       </if>
       <if test="carId != null">
-        #{carId,jdbcType=INTEGER},
+        #{carId,jdbcType=BIGINT},
       </if>
       <if test="carNumber != null">
         #{carNumber,jdbcType=INTEGER},
@@ -63,22 +156,22 @@
     update order_details
     <set>
       <if test="orderId != null">
-        order_id = #{orderId,jdbcType=INTEGER},
+        order_id = #{orderId,jdbcType=BIGINT},
       </if>
       <if test="carId != null">
-        car_id = #{carId,jdbcType=INTEGER},
+        car_id = #{carId,jdbcType=BIGINT},
       </if>
       <if test="carNumber != null">
         car_number = #{carNumber,jdbcType=INTEGER},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.OrderDetails">
     update order_details
-    set order_id = #{orderId,jdbcType=INTEGER},
-      car_id = #{carId,jdbcType=INTEGER},
+    set order_id = #{orderId,jdbcType=BIGINT},
+      car_id = #{carId,jdbcType=BIGINT},
       car_number = #{carNumber,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

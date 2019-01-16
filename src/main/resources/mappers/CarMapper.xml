@@ -3,7 +3,7 @@
 <mapper namespace="com.gxyan.dao.CarMapper">
   <resultMap id="BaseResultMap" type="com.gxyan.pojo.Car">
     <constructor>
-      <idArg column="id" javaType="java.lang.Integer" jdbcType="INTEGER" />
+      <idArg column="id" javaType="java.lang.Long" jdbcType="BIGINT" />
       <arg column="series_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <arg column="type" javaType="java.lang.String" jdbcType="VARCHAR" />
       <arg column="color" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -17,24 +17,71 @@
   <sql id="Base_Column_List">
     id, series_id, type, color, price, sale_price, repertory, create_time, status
   </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from car
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  <select id="selectSelective" parameterType="com.gxyan.vo.StoreQuery" resultType="com.gxyan.vo.StoreList">
+    select
+    id, brand_name brandName, series_name seriesName,
+    car.series_id seriesId, series.brand_id brandId,
+    type, color, price, sale_price salePrice,
+    repertory, create_time createTime, car.status status
+    from car
+    inner join series
+    on car.series_id = series.series_id
+    inner join brand
+    on series.brand_id = brand.brand_id
+    <where>
+      <choose>
+        <when test="id != null and id != ''">
+          id = #{id}
+        </when>
+        <when test="seriesId != null and seriesId != ''">
+          car.series_id = #{seriesId}
+        </when>
+        <when test="brandId != null and brandId != ''">
+          brand.brand_id = #{brandId}
+        </when>
+      </choose>
+      <if test="status != null and status != ''">
+        and car.status = #{status}
+      </if>
+    </where>
+    <if test="orderBy != null and orderBy != ''">
+      order by ${orderBy}
+    </if>
+  </select>
+  <select id="selectBySeriesId" resultType="com.gxyan.pojo.Car" parameterType="int">
+    select
+    id, type, color, sale_price salePrice
+    from car
+    where series_id = #{seriesId} and repertory > 0
+  </select>
+  <select id="selectRepertoryByPrimaryKey" resultType="java.lang.Integer">
+    select repertory
+    from car
+    where id = #{carId}
+  </select>
+  <select id="selectSalePriceByPrimaryKey" resultType="java.math.BigDecimal">
+    select sale_price
+    from car
+    where id = #{carId}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from car
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.Car">
     insert into car (id, series_id, type, 
       color, price, sale_price, 
       repertory, create_time, status
       )
-    values (#{id,jdbcType=INTEGER}, #{seriesId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=BIGINT}, #{seriesId,jdbcType=INTEGER}, #{type,jdbcType=VARCHAR}, 
       #{color,jdbcType=VARCHAR}, #{price,jdbcType=DECIMAL}, #{salePrice,jdbcType=DECIMAL}, 
-      #{repertory,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{status,jdbcType=VARCHAR}
+      #{repertory,jdbcType=INTEGER}, now(), #{status,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Car">
@@ -70,7 +117,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
-        #{id,jdbcType=INTEGER},
+        #{id,jdbcType=BIGINT},
       </if>
       <if test="seriesId != null">
         #{seriesId,jdbcType=INTEGER},
@@ -91,7 +138,7 @@
         #{repertory,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
-        #{createTime,jdbcType=TIMESTAMP},
+        now(),
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -120,13 +167,13 @@
         repertory = #{repertory,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
-        create_time = #{createTime,jdbcType=TIMESTAMP},
+        create_time = now(),
       </if>
       <if test="status != null">
         status = #{status,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Car">
     update car
@@ -136,8 +183,20 @@
       price = #{price,jdbcType=DECIMAL},
       sale_price = #{salePrice,jdbcType=DECIMAL},
       repertory = #{repertory,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_time = now(),
       status = #{status,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateRepertoryByPrimaryKey">
+    update car
+    set repertory = #{carNumber}
+    where id = #{carId}
+  </update>
+  <update id="addRepertoryByPrimaryKey">
+    update car
+    <![CDATA[
+    set repertory = repertory + #{carNumber}
+    ]]>
+    where id = #{carId}
   </update>
 </mapper>

@@ -2,18 +2,16 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.orderId" placeholder="订单编号" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.customerId" placeholder="客户编号" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-input v-model="listQuery.customerName" placeholder="客户姓名" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.sellerName" placeholder="销售员" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-select v-model="listQuery.type" placeholder="状态" clearable class="filter-item" style="width: 130px">
-        <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+      <el-input v-model="listQuery.employeeName" placeholder="销售员姓名" style="width: 170px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select v-model="listQuery.status" placeholder="状态" clearable class="filter-item" style="width: 130px" @keyup.enter.native="handleFilter">
+        <el-option v-for="item in orderStatusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
     </div>
 
     <el-table
-      v-loading="listLoading"
       :key="tableKey"
       :data="list"
       fit
@@ -22,41 +20,42 @@
       @sort-change="sortChange">
       <el-table-column type="expand" width="30">
         <template slot-scope="props">
-          <el-table :data="details" border>
-            <el-table-column label="汽车编号" prop="carId" align="center">
+          <el-table :data="props.row.details" border>
+            <el-table-column label="订单详情编号" min-width="110" align="center">
+              <template slot-scope="scope">
+                <span>{{ scope.row.id }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="汽车编号" align="center">
               <template slot-scope="scope">
                 <span>{{ scope.row.carId }}</span>
-                <!-- <span>0000011133</span> -->
               </template>
             </el-table-column>
-            <el-table-column label="型号" prop="carId" align="center">
+            <el-table-column label="型号" min-width="210" align="center">
               <template slot-scope="scope">
-                <!-- <span>{{ scope.row.carId }}</span> -->
-                <span>宝马730li</span>
+                <span>{{ scope.row.brandName }}/{{ scope.row.seriesName }}</span><br>
+                <span>{{ scope.row.type }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="颜色" prop="carId" align="center">
+            <el-table-column label="颜色" min-width="70" prop="color" align="center">
               <template slot-scope="scope">
-                <!-- <span>{{ scope.row.carId }}</span> -->
-                <span>黑</span>
+                <span>{{ scope.row.color }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="售价" prop="carId" align="center">
+            <el-table-column label="售价" min-width="70" prop="salePrice" align="center">
               <template slot-scope="scope">
-                <!-- <span>{{ scope.row.carId }}</span> -->
-                <span>￥ 1089000</span>
+                <span>￥ {{ scope.row.salePrice }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="数量" prop="carId" align="center">
+            <el-table-column label="数量" min-width="60" prop="carNumber" align="center">
               <template slot-scope="scope">
-                <!-- <span>{{ scope.row.carId }}</span> -->
-                <span>1</span>
+                <span>{{ scope.row.carNumber }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+            <el-table-column v-if="props.row.status === '0'" label="操作" min-width="110" align="center" class-name="small-padding fixed-width">
               <template slot-scope="scope">
-                <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
-                <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+                <el-button type="primary" size="mini" @click="handleUpdate(scope.row, props.row.orderId)">编辑</el-button>
+                <el-button v-if="props.row.details.length > 1" type="danger" size="mini" @click="handleDelete(scope.row, props.row.orderId)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -64,559 +63,439 @@
       </el-table-column>
       <el-table-column label="订单编号" prop="orderId" sortable="custom" align="center" min-width="105px">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.orderId }}</span> -->
-          <span>0000011111</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="客户编号" prop="customerId" sortable="custom" align="center" min-width="105px">
-        <template slot-scope="scope">
-          <!-- <span>{{ scope.row.customerId }}</span> -->
-          <span>0000089765</span>
+          <span>{{ scope.row.orderId }}</span>
         </template>
       </el-table-column>
       <el-table-column label="客户姓名" width="80px" align="center">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.customerName }}</span> -->
-          <span>张三丰</span>
+          <el-popover trigger="hover" placement="top">
+            <p>客户编号: {{ scope.row.customerId }}</p>
+            <p>姓名: {{ scope.row.customerName }}</p>
+            <p>联系电话: {{ scope.row.customerPhone }}</p>
+            <p>身份证号: {{ scope.row.customerIdCard }}</p>
+            <div slot="reference" class="name-wrapper">
+              <el-tag size="medium">{{ scope.row.customerName }}</el-tag>
+            </div>
+          </el-popover>
         </template>
       </el-table-column>
-      <el-table-column label="客户电话" width="115px" align="center">
+      <el-table-column label="总价" prop="totalPrice" sortable="custom" align="center" min-width="105px">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.customerPhone }}</span> -->
-          <span>89898989898</span>
+          <span>￥ {{ scope.row.totalPrice }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="总价" sortable="custom" align="center" min-width="105px">
+      <el-table-column label="销售员" width="105px" align="center">
         <template slot-scope="scope">
-          <span v-if="scope.row.pageviews" class="link-type">￥ 12345678</span>
-          <span v-else>￥ 0</span>
+          <span>{{ scope.row.employeeName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="销售员" width="80px" align="center">
+      <el-table-column label="创建时间" prop="createTime" sortable="custom" min-width="135px" align="center">
         <template slot-scope="scope">
-          <!-- <span>{{ scope.row.sellerName }}</span> -->
-          <span>乔峰</span>
+          <span>{{ scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="date" sortable="custom" min-width="135px" align="center">
+      <el-table-column label="更新时间" prop="updateTime" sortable="custom" min-width="135px" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" prop="date" sortable="custom" min-width="135px" align="center">
-        <template slot-scope="scope">
-          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.updateTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" class-name="status-col" min-width="95px">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status }}</el-tag>
+          <el-popover v-if="scope.row.payTime != null" trigger="hover" placement="top">
+            <p>支付时间: {{ scope.row.payTime | parseTime('{y}-{m}-{d} {h}:{i}') }}</p>
+            <div slot="reference" class="name-wrapper">
+              <el-tag :type="scope.row.status | statusFilter">{{ scope.row.status | typeFilter }}</el-tag>
+            </div>
+          </el-popover>
+          <el-tag v-else :type="scope.row.status | statusFilter">{{ scope.row.status | typeFilter }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" min-width="100px" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+          <el-button v-if="scope.row.status === '0'" type="primary" size="mini" @click="handleUpdateStatus(scope.row)">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+    <el-dialog :visible.sync="dialogFormVisible" title="修改订单信息">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="140px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="品牌/车系/型号" prop="selectedOptions">
-          <el-cascader :options="options" v-model="temp.selectedOptions" placeholder="品牌/车系/型号" />
+        <el-form-item label="品牌 & 车系" prop="selectedOptions">
+          <el-cascader :options="options" v-model="temp.selectedOptions" placeholder="品牌/车系" @change="getStore"/>
         </el-form-item>
-        <el-form-item label="颜色" prop="color">
-          <el-select v-model="temp.color" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+        <el-form-item
+          :rules="{ required: true, message: '必须选择型号', trigger: 'change' }"
+          label="型号 & 颜色"
+          prop="carId">
+          <el-select v-model="temp.carId" class="filter-item" placeholder="Please select" style="width: 100%" @change="getPrice">
+            <el-option
+              v-for="item in temp.store"
+              :key="item.id"
+              :label="item.type + ' ' + item.color"
+              :value="item.id">
+              <span>{{ item.type }}</span>
+              <el-tag>{{ item.color }}</el-tag>
+            </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="数量" prop="num">
-          <el-input-number v-model="temp.num" :min="1"/>
+        <el-form-item label="数量" prop="carNumber">
+          <el-input-number v-model="temp.carNumber" :min="1"/>
+        </el-form-item>
+        <el-form-item label="售价">
+          <span v-if="temp.carId">{{ temp.salePrice }} 元/辆</span>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">确认</el-button>
+        <el-button type="primary" @click="updateData">确认</el-button>
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="dialogPvVisible" title="订单状态">
-      <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+    <el-dialog :visible.sync="dialogStatusVisible" title="更新订单状态" width="450px">
+      <el-form ref="statusForm" :model="updateStatus" label-position="left" label-width="70px" style="margin-left:50px;">
         <el-form-item label="状态">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+          <el-select v-model="updateStatus.status" class="filter-item" required placeholder="Please select">
+            <el-option v-for="item in orderStatusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogPvVisible = false">取消</el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">确认</el-button>
+        <el-button @click="dialogStatusVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateStatusData">确认</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // Waves directive
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+import { validateIdCard } from '@/utils/validate'
+import { fetchList, updateStatus, updateDetail, deleteDetail } from '@/api/order'
+import { fetchStore, fetchSeries } from '@/api/init'
 
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
+const orderStatusOptions = [
+  { key: '0', display_name: '未支付' },
+  { key: '1', display_name: '已支付' },
+  { key: '2', display_name: '已取消' }
 ]
 
-// arr to obj ,such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
+const orderTypeKeyValue = orderStatusOptions.reduce((acc, cur) => {
   acc[cur.key] = cur.display_name
   return acc
 }, {})
 
 export default {
-  name: 'ComplexTable',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
+        0: 'danger',
+        1: 'success',
+        2: 'info'
       }
       return statusMap[status]
     },
     typeFilter(type) {
-      return calendarTypeKeyValue[type]
+      return orderTypeKeyValue[type]
     }
   },
   data() {
-    var validID = (rule, value, callback) => {
-      if (value === '' || value === undefined) {
-        callback(new Error('请输入客户身份证号'))
-      } else {
-        var reg = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
-        if (!reg.test(value)) {
-          callback(new Error('请输入正确的身份证号'))
-        }
-        callback()
-      }
-    }
     return {
       tableKey: 0,
       list: null,
       total: 0,
-      listLoading: true,
       listQuery: {
         page: 1,
-        limit: 10,
-        // importance: undefined,
+        limit: 5,
         orderId: undefined,
-        customerId: undefined,
         customerName: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
+        employeeName: undefined,
+        status: undefined,
+        orderBy: 'orderId desc'
       },
-      // importanceOptions: [1, 2, 3],
-      calendarTypeOptions,
-      sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      statusOptions: ['已支付', '未支付', '已取消'],
-      // showReviewer: false,
-      options: [{
-        value: 'zhinan',
-        label: '指南',
-        children: [{
-          value: 'shejiyuanze',
-          label: '设计原则',
-          children: [{
-            value: 'yizhi',
-            label: '一致'
-          }, {
-            value: 'fankui',
-            label: '反馈'
-          }, {
-            value: 'xiaolv',
-            label: '效率'
-          }, {
-            value: 'kekong',
-            label: '可控'
-          }]
-        }, {
-          value: 'daohang',
-          label: '导航',
-          children: [{
-            value: 'cexiangdaohang',
-            label: '侧向导航'
-          }, {
-            value: 'dingbudaohang',
-            label: '顶部导航'
-          }]
-        }]
-      }, {
-        value: 'zujian',
-        label: '组件',
-        children: [{
-          value: 'basic',
-          label: 'Basic',
-          children: [{
-            value: 'layout',
-            label: 'Layout 布局'
-          }, {
-            value: 'color',
-            label: 'Color 色彩'
-          }, {
-            value: 'typography',
-            label: 'Typography 字体'
-          }, {
-            value: 'icon',
-            label: 'Icon 图标'
-          }, {
-            value: 'button',
-            label: 'Button 按钮'
-          }]
-        }, {
-          value: 'form',
-          label: 'Form',
-          children: [{
-            value: 'radio',
-            label: 'Radio 单选框'
-          }, {
-            value: 'checkbox',
-            label: 'Checkbox 多选框'
-          }, {
-            value: 'input',
-            label: 'Input 输入框'
-          }, {
-            value: 'input-number',
-            label: 'InputNumber 计数器'
-          }, {
-            value: 'select',
-            label: 'Select 选择器'
-          }, {
-            value: 'cascader',
-            label: 'Cascader 级联选择器'
-          }, {
-            value: 'switch',
-            label: 'Switch 开关'
-          }, {
-            value: 'slider',
-            label: 'Slider 滑块'
-          }, {
-            value: 'time-picker',
-            label: 'TimePicker 时间选择器'
-          }, {
-            value: 'date-picker',
-            label: 'DatePicker 日期选择器'
-          }, {
-            value: 'datetime-picker',
-            label: 'DateTimePicker 日期时间选择器'
-          }, {
-            value: 'upload',
-            label: 'Upload 上传'
-          }, {
-            value: 'rate',
-            label: 'Rate 评分'
-          }, {
-            value: 'form',
-            label: 'Form 表单'
-          }]
-        }, {
-          value: 'data',
-          label: 'Data',
-          children: [{
-            value: 'table',
-            label: 'Table 表格'
-          }, {
-            value: 'tag',
-            label: 'Tag 标签'
-          }, {
-            value: 'progress',
-            label: 'Progress 进度条'
-          }, {
-            value: 'tree',
-            label: 'Tree 树形控件'
-          }, {
-            value: 'pagination',
-            label: 'Pagination 分页'
-          }, {
-            value: 'badge',
-            label: 'Badge 标记'
-          }]
-        }, {
-          value: 'notice',
-          label: 'Notice',
-          children: [{
-            value: 'alert',
-            label: 'Alert 警告'
-          }, {
-            value: 'loading',
-            label: 'Loading 加载'
-          }, {
-            value: 'message',
-            label: 'Message 消息提示'
-          }, {
-            value: 'message-box',
-            label: 'MessageBox 弹框'
-          }, {
-            value: 'notification',
-            label: 'Notification 通知'
-          }]
-        }, {
-          value: 'navigation',
-          label: 'Navigation',
-          children: [{
-            value: 'menu',
-            label: 'NavMenu 导航菜单'
-          }, {
-            value: 'tabs',
-            label: 'Tabs 标签页'
-          }, {
-            value: 'breadcrumb',
-            label: 'Breadcrumb 面包屑'
-          }, {
-            value: 'dropdown',
-            label: 'Dropdown 下拉菜单'
-          }, {
-            value: 'steps',
-            label: 'Steps 步骤条'
-          }]
-        }, {
-          value: 'others',
-          label: 'Others',
-          children: [{
-            value: 'dialog',
-            label: 'Dialog 对话框'
-          }, {
-            value: 'tooltip',
-            label: 'Tooltip 文字提示'
-          }, {
-            value: 'popover',
-            label: 'Popover 弹出框'
-          }, {
-            value: 'card',
-            label: 'Card 卡片'
-          }, {
-            value: 'carousel',
-            label: 'Carousel 走马灯'
-          }, {
-            value: 'collapse',
-            label: 'Collapse 折叠面板'
-          }]
-        }]
-      }, {
-        value: 'ziyuan',
-        label: '资源',
-        children: [{
-          value: 'axure',
-          label: 'Axure Components'
-        }, {
-          value: 'sketch',
-          label: 'Sketch Templates'
-        }, {
-          value: 'jiaohu',
-          label: '组件交互文档'
-        }]
-      }],
-      selectedOptions: [],
+      orderStatusOptions,
+      options: [],
       temp: {
-        id: undefined,
-        timestamp: new Date(),
-        type: '',
-        status: '未支付',
-        options: [],
-        selectedOptions: []
+        orderId: null,
+        selectedOptions: [],
+        type: null,
+        color: null,
+        carId: null,
+        carNumber: null,
+        store: null
       },
-      // dialogFormVisible：编辑或添加Form的可见性
+      updateStatus: {
+        status: null
+      },
       dialogFormVisible: false,
-      dialogStatus: '',
-      textMap: {
-        update: 'Edit',
-        create: 'Create'
-      },
-      dialogPvVisible: false,
-      pvData: [],
+      dialogStatusVisible: false,
       rules: {
-        color: [{ required: true, message: '必须选择颜色', trigger: 'change' }],
-        // timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-        num: [{ required: true, message: '必须填入数量', trigger: 'blur' }],
+        type: [{ required: true, message: '必须选择型号', trigger: 'change' }],
+        carNumber: [{ required: true, message: '必须填入数量', trigger: 'blur' }],
         selectedOptions: [{ required: true, message: '必须选择车型', trigger: 'change' }],
-        customerIdCard: [{ required: true, validator: validID, trigger: 'blur' }]
+        customerIdCard: [{ required: true, validator: validateIdCard, trigger: 'blur' }]
       },
-      downloadLoading: false,
-      details: [{
-        carId: '1234512345'
-      }, {
-        carId: '9876598765'
-      }],
-      dialogAddVisible: false,
-      dynamicValidateForm: {
-        customerIdCard: undefined,
-        status: '未支付',
-        domains: [{
-          // value: ''
-          selectedOptions: [],
-          color: undefined,
-          num: undefined
-        }]
-        // email: ''
-      }
+      downloadLoading: false
     }
   },
   created() {
     this.getList()
+    this.getSeriesOpt()
   },
   methods: {
     getList() {
-      this.listLoading = true
       fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
-
-        // Just to simulate the time of the request
-        setTimeout(() => {
+        if (response.data.code === 20000) {
+          this.list = response.data.data.items
+          this.total = response.data.data.total
           this.listLoading = false
-        }, 1.5 * 1000)
+        } else {
+          this.$message({
+            message: response.data.message,
+            type: 'error'
+          })
+          this.listLoading = false
+        }
       })
     },
+    // 获取series
+    getSeriesOpt() {
+      fetchSeries().then(response => {
+        this.options = response.data.data
+      })
+    },
+    getStore() {
+      const seriesId = this.temp.selectedOptions[1]
+      fetchStore(seriesId).then(response => {
+        this.temp.store = response.data.data
+        const brandId = this.temp.selectedOptions[0]
+        this.temp.brandId = brandId
+        this.temp.seriesId = seriesId
+        for (const v of this.options) {
+          if (v.value === brandId) {
+            this.temp.brandName = v.label
+            for (const u of v.children) {
+              if (u.value === seriesId) {
+                this.temp.seriesName = u.label
+                break
+              }
+            }
+            break
+          }
+        }
+        this.temp.carId = null
+      })
+    },
+    getPrice() {
+      for (const v of this.temp.store) {
+        if (v.id === this.temp.carId) {
+          this.temp.salePrice = v.salePrice
+          break
+        }
+      }
+    },
+
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作成功',
-        type: 'success'
-      })
-      row.status = status
-    },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      } else if (prop === 'date') {
-        // 按日期排序
-      }
-    },
-    sortByID(order) {
       if (order === 'ascending') {
-        this.listQuery.sort = '+id'
+        this.listQuery.orderBy = prop + ' asc'
       } else {
-        this.listQuery.sort = '-id'
+        this.listQuery.orderBy = prop + ' desc'
       }
       this.handleFilter()
     },
-    resetTemp() {
-      this.temp = {
-        id: undefined,
-        // importance: 1,
-        // remark: '',
-        timestamp: new Date(),
-        // title: '',
-        status: '未支付',
-        type: '',
-        options: [],
-        selectedOptions: [],
-        selectedOptions2: []
-      }
-    },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogAddVisible = true
-      this.$nextTick(() => {
-        this.$refs['dynamicValidateForm'].clearValidate()
+    handleUpdate(row, orderId) {
+      this.temp = Object.assign({}, row) // copy obj
+      this.temp.selectedOptions = [row.brandId, row.seriesId]
+      this.temp.orderId = orderId
+      fetchStore(this.temp.seriesId).then(response => {
+        this.temp.store = response.data.data
+        this.dialogFormVisible = true
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
+        })
       })
     },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
+    handleUpdateStatus(row) {
+      this.updateStatus = Object.assign({}, row) // copy obj
+      this.dialogStatusVisible = true
+      this.$nextTick(() => {
+        this.$refs['statusForm'].clearValidate()
+      })
+    },
+    updateStatusData() {
+      this.$refs['statusForm'].validate((valid) => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: '成功',
-              message: '创建成功',
-              type: 'success',
-              duration: 2000
-            })
+          updateStatus({
+            orderId: this.updateStatus.orderId,
+            status: this.updateStatus.status
+          }).then(response => {
+            if (response.data.code === 20000) {
+              this.updateStatus.payTime = new Date()
+              this.updateStatus.updateTime = new Date()
+              for (const v of this.list) {
+                if (v.orderId === this.updateStatus.orderId) {
+                  const index = this.list.indexOf(v)
+                  this.list.splice(index, 1, this.updateStatus)
+                  break
+                }
+              }
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '错误',
+                message: response.data.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
+            this.dialogStatusVisible = false
           })
         }
-      })
-    },
-    handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
       })
     },
     updateData() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            for (const v of this.list) {
-              if (v.id === this.temp.id) {
-                const index = this.list.indexOf(v)
-                this.list.splice(index, 1, this.temp)
-                break
-              }
+          for (const v of this.temp.store) {
+            if (v.id === this.temp.carId) {
+              tempData.salePrice = v.salePrice
+              tempData.type = v.type
+              tempData.color = v.color
             }
-            this.dialogPvVisible = false
-            this.$notify({
-              title: '成功',
-              message: '更新成功',
-              type: 'success',
-              duration: 2000
-            })
+          }
+          updateDetail({
+            id: tempData.id,
+            carId: tempData.carId,
+            orderId: tempData.orderId,
+            carNumber: tempData.carNumber
+          }).then(response => {
+            if (response.data.code === 20000) {
+              for (const v of this.list) {
+                if (v.orderId === this.temp.orderId) {
+                  let totalPrice = 0
+                  const index = this.list.indexOf(v)
+                  const update = this.list[index]
+                  for (const u of update.details) {
+                    if (u.id === this.temp.id) {
+                      const i = update.details.indexOf(u)
+                      update.details.splice(i, 1, tempData)
+                      break
+                    }
+                  }
+                  for (const u of update.details) {
+                    totalPrice += u.salePrice * u.carNumber
+                  }
+                  update.totalPrice = totalPrice
+                  update.updateTime = new Date()
+                  this.list.splice(index, 1, update)
+                  break
+                }
+              }
+              this.$notify({
+                title: '成功',
+                message: '更新成功',
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '错误',
+                message: response.data.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
+            this.dialogFormVisible = false
           })
         }
       })
     },
-    handleDelete(row) {
-      this.$notify({
-        title: '成功',
-        message: '删除成功',
-        type: 'success',
-        duration: 2000
-      })
-      const index = this.list.indexOf(row)
-      this.list.splice(index, 1)
-    },
-    handleFetchPv(pv) {
-      fetchPv(pv).then(response => {
-        this.pvData = response.data.pvData
-        this.dialogPvVisible = true
+    handleDelete(row, orderId) {
+      this.$confirm('此操作将永久删除, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(() => {
+        const tempData = Object.assign({}, row)
+        deleteDetail({
+          id: tempData.id
+        }).then(response => {
+          if (response.data.code === 20000) {
+            for (const v of this.list) {
+              if (v.orderId === orderId) {
+                let totalPrice = 0
+                const index = this.list.indexOf(v)
+                const update = this.list[index]
+                for (const u of update.details) {
+                  if (u.id === tempData.id) {
+                    const i = update.details.indexOf(u)
+                    update.details.splice(i, 1)
+                    break
+                  }
+                }
+                for (const u of update.details) {
+                  totalPrice += u.salePrice * u.carNumber
+                }
+                update.totalPrice = totalPrice
+                this.list.splice(index, 1, update)
+                break
+              }
+            }
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+          } else {
+            this.$notify({
+              title: '错误',
+              message: response.data.message,
+              type: 'error',
+              duration: 2000
+            })
+          }
+        })
       })
     },
     handleDownload() {
       this.downloadLoading = true
       import('@/vendor/Export2Excel').then(excel => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+        const tHeader = ['订单编号', '客户编号', '客户姓名', '创建时间', '更新时间', '状态']
+        const filterVal = ['orderId', 'customerId', 'customerName', 'createTime', 'updateTime', 'status']
         const data = this.formatJson(filterVal, this.list)
         excel.export_json_to_excel({
           header: tHeader,
           data,
-          filename: 'table-list'
+          filename: '销售订单'
         })
         this.downloadLoading = false
       })
     },
     formatJson(filterVal, jsonData) {
       return jsonData.map(v => filterVal.map(j => {
-        if (j === 'timestamp') {
+        if (j === 'createTime') {
           return parseTime(v[j])
+        } else if (j === 'updateTime') {
+          return parseTime(v[j])
+        } else if (j === 'status') {
+          return orderTypeKeyValue[v[j]]
         } else {
           return v[j]
         }

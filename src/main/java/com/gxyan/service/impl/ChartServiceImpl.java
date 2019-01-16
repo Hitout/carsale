@@ -64,7 +64,6 @@ public class ChartServiceImpl implements IChartService {
 
     @Override
     public ServerResponse getIndexSales(Integer id) {
-        log.info(id.toString());
         IndexSales indexSales = detailsMapper.selectIndexSales(id);
         if (indexSales != null) {
             return ServerResponse.createBySuccess(indexSales);

@@ -2,6 +2,8 @@ package com.gxyan.dao;
 
 import com.gxyan.pojo.Brand;
 
+import java.util.List;
+
 public interface BrandMapper {
     int deleteByPrimaryKey(Integer brandId);
 
@@ -14,4 +16,8 @@ public interface BrandMapper {
     int updateByPrimaryKeySelective(Brand record);
 
     int updateByPrimaryKey(Brand record);
+
+    List<Brand> getBrand();
+
+    Brand selectByBrandName(String brandName);
 }

@@ -6,56 +6,63 @@
     </el-header>
     <el-form ref="ruleForm" :model="ruleForm" :rules="rules" label-width="130px" class="demo-ruleForm" style="width: 500px; margin-left:50px;">
       <el-form-item label="客户身份证号" prop="idCard" >
-        <el-input v-model="ruleForm.idCard" />
+        <el-input v-model="ruleForm.idCard" @change="getCustomer"/>
+      </el-form-item>
+      <el-form-item label="客户姓名">
+        <span style="margin-left: 15px" v-html="ruleForm.customer.name"/>
       </el-form-item>
       <el-form-item label="支付状态" prop="status">
         <el-select v-model="ruleForm.status" class="filter-item" placeholder="Please select">
-          <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+          <el-option v-for="item in orderStatusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
         </el-select>
       </el-form-item>
       <div
         v-for="(domain, index) in ruleForm.domains"
-        :label="'车辆' + (index+1)"
         :key="domain.key">
         <hr style="border: 0.5px solid #dcdfe6">
         <el-form-item>
           <el-button class="el-icon-remove-outline" @click.prevent="removeDomain(domain)"> 撤销</el-button>
         </el-form-item>
         <el-form-item
-          :rules="{ required: true, message: '必须选择车型', trigger: 'change' }"
+          :rules="{ required: true, message: '必须选择车系', trigger: 'change' }"
           :prop="'domains.' + index + '.selectedOptions'"
-          label="品牌/车系/型号">
-          <el-cascader :options="options" v-model="domain.selectedOptions" placeholder="品牌/车系/型号" />
+          label="品牌 & 车系">
+          <el-cascader :options="options" v-model="domain.selectedOptions" placeholder="品牌/车系" @change="getStore(index)"/>
         </el-form-item>
         <el-form-item
-          :rules="{ required: true, message: '必须选择颜色', trigger: 'change' }"
-          :prop="'domains.' + index + '.color'"
-          label="颜色">
-          <el-select v-model="domain.color" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in colorOptions" :key="item" :label="item" :value="item"/>
+          :rules="{ required: true, message: '必须选择型号', trigger: 'change' }"
+          :prop="'domains.' + index + '.carId'"
+          label="型号 & 颜色">
+          <el-select v-model="domain.storeIndex" class="filter-item" placeholder="Please select" style="width: 100%" @change="getPrice(index)">
+            <el-option
+              v-for="(item, storeIndex) in domain.store"
+              :key="item.id"
+              :label="item.type + ' ' + item.color"
+              :value="storeIndex">
+              <span>{{ item.type }}</span>
+              <el-tag>{{ item.color }}</el-tag>
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item
           :rules="{ required: true, message: '必须填入数量', trigger: 'blur' }"
-          :prop="'domains.' + index + '.num'"
+          :prop="'domains.' + index + '.carNumber'"
           label="数量">
-          <el-input-number v-model="domain.num" :min="1"/>
+          <el-input-number v-model="domain.carNumber" :min="1" @change="getTotalPrice"/>
+        </el-form-item>
+        <el-form-item label="售价">
+          <span v-if="domain.storeIndex !== null" style="margin-left: 15px">{{ domain.salePrice }} 元/辆</span>
         </el-form-item>
       </div>
-      <!-- <el-form-item
-        v-for="(domain, index) in ruleForm.domains"
-        :label="'域名' + index"
-        :key="domain.key"
-        :prop="'domains.' + index + '.value'"
-        :rules="{
-          required: true, message: '域名不能为空', trigger: 'blur'
-        }"
-      >
-        <el-input v-model="domain.value"/><el-button @click.prevent="removeDomain(domain)">删除</el-button>
-      </el-form-item> -->
       <el-form-item>
         <el-button class="el-icon-circle-plus-outline" @click="addDomain"> 添加车辆</el-button>
-        <el-button type="primary" @click="submitForm('ruleForm')">提交</el-button>
+      </el-form-item>
+      <hr style="border: 0.5px solid #dcdfe6">
+      <el-form-item label="总价">
+        <span style="margin-left: 15px">{{ ruleForm.totalPrice }}</span> 元
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="submitForm">提交</el-button>
         <el-button @click="resetForm('ruleForm')">重置</el-button>
       </el-form-item>
     </el-form>
@@ -63,29 +70,33 @@
 </template>
 
 <script>
+import { validateIdCard, validIdCard } from '@/utils/validate'
+import { fetchSeries, fetchStore, fetchCustomer } from '@/api/init'
+import { addOrder } from '@/api/order'
+
+const orderStatusOptions = [
+  { key: '0', display_name: '未支付' },
+  { key: '1', display_name: '已支付' }
+]
 
 export default {
   data() {
-    var validID = (rule, value, callback) => {
-      if (value === '' || value === undefined) {
-        callback(new Error('请输入客户身份证号'))
-      } else {
-        var reg = /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/
-        if (!reg.test(value)) {
-          callback(new Error('请输入正确的身份证号'))
-        }
-        callback()
-      }
-    }
     return {
       ruleForm: {
-        customerIdCard: undefined,
-        status: '未支付',
+        idCard: undefined,
+        customer: {
+          id: undefined,
+          name: ''
+        },
+        status: '0',
+        totalPrice: null,
         domains: [{
-          // value: ''
+          storeIndex: null,
+          carId: null,
+          carNumber: 0,
+          salePrice: 0,
           selectedOptions: [],
-          color: undefined,
-          num: undefined
+          store: null
         }]
       },
       rules: {
@@ -93,216 +104,129 @@ export default {
           { required: true, message: '请选择支付状态', trigger: 'blur' }
         ],
         idCard: [
-          { required: true, validator: validID, trigger: 'blur' }
+          { required: true, validator: validateIdCard, trigger: 'blur' }
         ]
       },
-      statusOptions: ['已支付', '未支付', '已取消'],
-      colorOptions: ['曜石黑', '未支付', '已取消'],
-      options: [{
-        value: 'zhinan',
-        label: '指南',
-        children: [{
-          value: 'shejiyuanze',
-          label: '设计原则',
-          children: [{
-            value: 'yizhi',
-            label: '一致'
-          }, {
-            value: 'fankui',
-            label: '反馈'
-          }, {
-            value: 'xiaolv',
-            label: '效率'
-          }, {
-            value: 'kekong',
-            label: '可控'
-          }]
-        }, {
-          value: 'daohang',
-          label: '导航',
-          children: [{
-            value: 'cexiangdaohang',
-            label: '侧向导航'
-          }, {
-            value: 'dingbudaohang',
-            label: '顶部导航'
-          }]
-        }]
-      }, {
-        value: 'zujian',
-        label: '组件',
-        children: [{
-          value: 'basic',
-          label: 'Basic',
-          children: [{
-            value: 'layout',
-            label: 'Layout 布局'
-          }, {
-            value: 'color',
-            label: 'Color 色彩'
-          }, {
-            value: 'typography',
-            label: 'Typography 字体'
-          }, {
-            value: 'icon',
-            label: 'Icon 图标'
-          }, {
-            value: 'button',
-            label: 'Button 按钮'
-          }]
-        }, {
-          value: 'form',
-          label: 'Form',
-          children: [{
-            value: 'radio',
-            label: 'Radio 单选框'
-          }, {
-            value: 'checkbox',
-            label: 'Checkbox 多选框'
-          }, {
-            value: 'input',
-            label: 'Input 输入框'
-          }, {
-            value: 'input-number',
-            label: 'InputNumber 计数器'
-          }, {
-            value: 'select',
-            label: 'Select 选择器'
-          }, {
-            value: 'cascader',
-            label: 'Cascader 级联选择器'
-          }, {
-            value: 'switch',
-            label: 'Switch 开关'
-          }, {
-            value: 'slider',
-            label: 'Slider 滑块'
-          }, {
-            value: 'time-picker',
-            label: 'TimePicker 时间选择器'
-          }, {
-            value: 'date-picker',
-            label: 'DatePicker 日期选择器'
-          }, {
-            value: 'datetime-picker',
-            label: 'DateTimePicker 日期时间选择器'
-          }, {
-            value: 'upload',
-            label: 'Upload 上传'
-          }, {
-            value: 'rate',
-            label: 'Rate 评分'
-          }, {
-            value: 'form',
-            label: 'Form 表单'
-          }]
-        }, {
-          value: 'data',
-          label: 'Data',
-          children: [{
-            value: 'table',
-            label: 'Table 表格'
-          }, {
-            value: 'tag',
-            label: 'Tag 标签'
-          }, {
-            value: 'progress',
-            label: 'Progress 进度条'
-          }, {
-            value: 'tree',
-            label: 'Tree 树形控件'
-          }, {
-            value: 'pagination',
-            label: 'Pagination 分页'
-          }, {
-            value: 'badge',
-            label: 'Badge 标记'
-          }]
-        }, {
-          value: 'notice',
-          label: 'Notice',
-          children: [{
-            value: 'alert',
-            label: 'Alert 警告'
-          }, {
-            value: 'loading',
-            label: 'Loading 加载'
-          }, {
-            value: 'message',
-            label: 'Message 消息提示'
-          }, {
-            value: 'message-box',
-            label: 'MessageBox 弹框'
-          }, {
-            value: 'notification',
-            label: 'Notification 通知'
-          }]
-        }, {
-          value: 'navigation',
-          label: 'Navigation',
-          children: [{
-            value: 'menu',
-            label: 'NavMenu 导航菜单'
-          }, {
-            value: 'tabs',
-            label: 'Tabs 标签页'
-          }, {
-            value: 'breadcrumb',
-            label: 'Breadcrumb 面包屑'
-          }, {
-            value: 'dropdown',
-            label: 'Dropdown 下拉菜单'
-          }, {
-            value: 'steps',
-            label: 'Steps 步骤条'
-          }]
-        }, {
-          value: 'others',
-          label: 'Others',
-          children: [{
-            value: 'dialog',
-            label: 'Dialog 对话框'
-          }, {
-            value: 'tooltip',
-            label: 'Tooltip 文字提示'
-          }, {
-            value: 'popover',
-            label: 'Popover 弹出框'
-          }, {
-            value: 'card',
-            label: 'Card 卡片'
-          }, {
-            value: 'carousel',
-            label: 'Carousel 走马灯'
-          }, {
-            value: 'collapse',
-            label: 'Collapse 折叠面板'
-          }]
-        }]
-      }, {
-        value: 'ziyuan',
-        label: '资源',
-        children: [{
-          value: 'axure',
-          label: 'Axure Components'
-        }, {
-          value: 'sketch',
-          label: 'Sketch Templates'
-        }, {
-          value: 'jiaohu',
-          label: '组件交互文档'
-        }]
-      }],
-      selectedOptions: []
+      orderStatusOptions,
+      options: [],
+      commitAble: false
     }
   },
+  created() {
+    this.getSeriesOpt()
+  },
   methods: {
+    // 获取options
+    getSeriesOpt() {
+      fetchSeries().then(response => {
+        this.options = response.data.data
+      })
+    },
 
-    // 动态表单
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          alert('submit!')
+    // 获取库存
+    getStore(index) {
+      fetchStore(this.ruleForm.domains[index].selectedOptions[1]).then(response => {
+        this.ruleForm.domains[index].store = response.data.data
+        this.ruleForm.domains[index].carId = null
+        this.ruleForm.domains[index].storeIndex = null
+      })
+    },
+
+    getPrice(index) {
+      const storeIndex = this.ruleForm.domains[index].storeIndex
+      this.ruleForm.domains[index].salePrice = this.ruleForm.domains[index].store[storeIndex].salePrice
+      this.ruleForm.domains[index].carId = this.ruleForm.domains[index].store[storeIndex].id
+      this.getTotalPrice()
+    },
+
+    getTotalPrice() {
+      const domains = this.ruleForm.domains
+      let totalPrice = 0
+      for (let i = 0; i < domains.length; i++) {
+        if (!domains[i]) {
+          break
+        }
+        totalPrice += domains[i].salePrice * domains[i].carNumber
+      }
+      this.ruleForm.totalPrice = totalPrice
+    },
+
+    // 获取用户
+    getCustomer() {
+      this.resetCustomer()
+      this.ruleForm.customerId = null
+      if (validIdCard(this.ruleForm.idCard)) {
+        fetchCustomer(this.ruleForm.idCard).then(response => {
+          if (response.data.code === 20000) {
+            this.ruleForm.customer = response.data.data
+            this.commitAble = true
+          } else {
+            this.commitAble = false
+            this.ruleForm.customer.name = "<small style='color: red'>" + response.data.message + '</small>'
+          }
+        })
+      }
+    },
+    resetRuleForm() {
+      this.ruleForm = {
+        idCard: undefined,
+        customer: {
+          id: undefined,
+          name: ''
+        },
+        status: '0',
+        totalPrice: null,
+        domains: [{
+          storeIndex: null,
+          carId: null,
+          carNumber: 0,
+          salePrice: 0,
+          selectedOptions: [],
+          store: null
+        }]
+      }
+    },
+    resetCustomer() {
+      this.ruleForm.customer = {
+        id: undefined,
+        name: ''
+      }
+    },
+    submitForm() {
+      this.$refs['ruleForm'].validate((valid) => {
+        if (valid && this.commitAble) {
+          const tempData = Object.assign({}, this.ruleForm)
+          const employeeId = this.$store.getters.id
+          if (employeeId === null && employeeId === '') {
+            this.$message({
+              message: '登录信息有误，请重新登录!',
+              type: 'error'
+            })
+          }
+          addOrder({
+            employeeId: employeeId,
+            customerId: tempData.customer.id,
+            status: tempData.status,
+            totalPrice: tempData.totalPrice,
+            detailVos: tempData.domains
+          }).then(response => {
+            if (response.data.code === 20000) {
+              this.$notify({
+                title: '成功',
+                message: '添加成功',
+                type: 'success',
+                duration: 2000
+              })
+              this.resetForm('ruleForm')
+            } else {
+              this.$notify({
+                title: '错误',
+                message: response.data.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
+          })
         } else {
           console.log('error submit!!')
           return false
@@ -310,17 +234,23 @@ export default {
       })
     },
     resetForm(formName) {
+      this.resetRuleForm()
       this.$refs[formName].resetFields()
     },
     removeDomain(item) {
-      var index = this.ruleForm.domains.indexOf(item)
-      if (index !== -1) {
+      const index = this.ruleForm.domains.indexOf(item)
+      if (index !== 0) {
         this.ruleForm.domains.splice(index, 1)
       }
     },
     addDomain() {
       this.ruleForm.domains.push({
-        value: '',
+        storeIndex: null,
+        carId: null,
+        carNumber: 0,
+        salePrice: 0,
+        selectedOptions: [],
+        store: null,
         key: Date.now()
       })
     }

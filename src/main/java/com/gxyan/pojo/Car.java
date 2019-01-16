@@ -1,10 +1,13 @@
 package com.gxyan.pojo;
 
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
+@ToString
 public class Car {
-    private Integer id;
+    private Long id;
 
     private Integer seriesId;
 
@@ -22,7 +25,7 @@ public class Car {
 
     private String status;
 
-    public Car(Integer id, Integer seriesId, String type, String color, BigDecimal price, BigDecimal salePrice, Integer repertory, Date createTime, String status) {
+    public Car(Long id, Integer seriesId, String type, String color, BigDecimal price, BigDecimal salePrice, Integer repertory, Date createTime, String status) {
         this.id = id;
         this.seriesId = seriesId;
         this.type = type;
@@ -38,11 +41,11 @@ public class Car {
         super();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -7,10 +7,13 @@ public class Series {
 
     private String seriesName;
 
-    public Series(Integer seriesId, Integer brandId, String seriesName) {
+    private String status;
+
+    public Series(Integer seriesId, Integer brandId, String seriesName, String status) {
         this.seriesId = seriesId;
         this.brandId = brandId;
         this.seriesName = seriesName;
+        this.status = status;
     }
 
     public Series() {
@@ -39,5 +42,13 @@ public class Series {
 
     public void setSeriesName(String seriesName) {
         this.seriesName = seriesName == null ? null : seriesName.trim();
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status == null ? null : status.trim();
     }
 }

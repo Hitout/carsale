@@ -1,7 +1,6 @@
 import request from '@/utils/request'
 
 export function addOrder(orderVo) {
-  console.log(orderVo)
   return request({
     headers: {
       'Accept': 'application/json',
@@ -14,7 +13,6 @@ export function addOrder(orderVo) {
 }
 
 export function fetchList(query) {
-  // console.log(query)
   return request({
     url: '/order/getList',
     method: 'get',

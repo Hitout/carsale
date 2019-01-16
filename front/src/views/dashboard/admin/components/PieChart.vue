@@ -20,41 +20,25 @@ export default {
     height: {
       type: String,
       default: '300px'
+    },
+    option: {
+      type: Object,
+      default: null
     }
   },
   data() {
     return {
-      chart: null
+      myChart: {}
     }
   },
-  mounted() {
-    this.initChart()
-    this.__resizeHandler = debounce(() => {
-      if (this.chart) {
-        this.chart.resize()
-      }
-    }, 100)
-    window.addEventListener('resize', this.__resizeHandler)
-  },
-  beforeDestroy() {
-    if (!this.chart) {
-      return
-    }
-    window.removeEventListener('resize', this.__resizeHandler)
-    this.chart.dispose()
-    this.chart = null
-  },
-  methods: {
-    initChart() {
-      this.chart = echarts.init(this.$el, 'macarons')
-
-      this.chart.setOption({
+  computed: {
+    opt() {
+      const obj = {
         title: {
           text: '昨日销售额',
           x: '20',
           top: '20',
           textStyle: {
-            // color: '#fff',
             fontSize: '22'
           },
           subtextStyle: {
@@ -64,33 +48,65 @@ export default {
         },
         tooltip: {
           trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
+          formatter: '{b} : {c} ({d}%)'
         },
         legend: {
           left: 'center',
           bottom: '10',
-          data: ['Industries', 'Technology', 'Forex', 'Gold', 'Forecasts']
+          data: this.option.legend.data
         },
         calculable: true,
         series: [
           {
-            name: 'WEEKLY WRITE ARTICLES',
             type: 'pie',
             roseType: 'radius',
             radius: [15, 95],
             center: ['50%', '38%'],
-            data: [
-              { value: 320, name: 'Industries' },
-              { value: 240, name: 'Technology' },
-              { value: 149, name: 'Forex' },
-              { value: 100, name: 'Gold' },
-              { value: 59, name: 'Forecasts' }
-            ],
+            data: this.option.series.data,
             animationEasing: 'cubicInOut',
-            animationDuration: 2600
+            animationDuration: 1600
           }
         ]
-      })
+      }
+      return obj
+    }
+  },
+  watch: {
+    option: function() {
+      this.chartChange()
+    }
+  },
+  mounted() {
+    this.initChart()
+    this.__resizeHandler = debounce(() => {
+      if (this.myChart) {
+        this.myChart.resize()
+      }
+    }, 100)
+    window.addEventListener('resize', this.__resizeHandler)
+  },
+  updated() {
+    if (!this.myChart) {
+      this.initChart()
+    }
+    this.ChartChange()
+  },
+  beforeDestroy() {
+    if (!this.myChart) {
+      return
+    }
+    window.removeEventListener('resize', this.__resizeHandler)
+    this.myChart.dispose()
+    this.myChart = null
+  },
+  methods: {
+    initChart() {
+      this.myChart = echarts.init(this.$el, 'macarons')
+
+      this.myChart.setOption(this.opt)
+    },
+    chartChange() {
+      this.myChart.setOption(this.opt)
     }
   }
 }

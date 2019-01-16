@@ -3,12 +3,14 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
   state: {
+    id: '',
     user: '',
     status: '',
-    code: '',
     token: getToken(),
     name: '',
     avatar: '',
+    code: undefined,
+    message: '',
     introduction: '',
     roles: [],
     setting: {
@@ -17,9 +19,6 @@ const user = {
   },
 
   mutations: {
-    SET_CODE: (state, code) => {
-      state.code = code
-    },
     SET_TOKEN: (state, token) => {
       state.token = token
     },
@@ -35,11 +34,25 @@ const user = {
     SET_NAME: (state, name) => {
       state.name = name
     },
+    SET_ID: (state, id) => {
+      state.id = id
+    },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
     },
+    SET_CODE: (state, code) => {
+      state.code = code
+    },
+    SET_MESSAGE: (state, message) => {
+      state.message = message
+    },
     SET_ROLES: (state, roles) => {
-      state.roles = roles
+      // state.roles = roles
+      if (roles === '1') {
+        state.roles = ['editor']
+      } else if (roles === '0') {
+        state.roles = ['admin']
+      }
     }
   },
 
@@ -49,9 +62,16 @@ const user = {
       const username = userInfo.username.trim()
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
-          const data = response.data
-          commit('SET_TOKEN', data.token)
-          setToken(response.data.token)
+          const data = response.data.data
+          commit('SET_CODE', response.data.code)
+          // console.log(response.data.code)
+          if (response.data.code === 20000) {
+            commit('SET_TOKEN', data.token)
+            setToken(data.token)
+            // console.log('token:' + data.token)
+          } else {
+            commit('SET_MESSAGE', response.data.message)
+          }
           resolve()
         }).catch(error => {
           reject(error)
@@ -63,40 +83,28 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
-            reject('error')
+          if (response.data.code !== 20000) {
+            reject('获取用户信息失败，请重新登录')
           }
-          const data = response.data
+          const data = response.data.data
 
-          if (data.roles && data.roles.length > 0) { // 验证返回的roles是否是一个非空数组
-            commit('SET_ROLES', data.roles)
+          if (data) { // 验证返回的roles是否是一个非空数组
+            commit('SET_ROLES', data.role)
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
 
           commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_INTRODUCTION', data.introduction)
+          commit('SET_ID', data.id)
+          // avatar: 头像
+          commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
+          commit('SET_STATUS', data.status)
           resolve(response)
         }).catch(error => {
           reject(error)
         })
       })
     },
-
-    // 第三方验证登录
-    // LoginByThirdparty({ commit, state }, code) {
-    //   return new Promise((resolve, reject) => {
-    //     commit('SET_CODE', code)
-    //     loginByThirdparty(state.status, state.email, state.code).then(response => {
-    //       commit('SET_TOKEN', response.data.token)
-    //       setToken(response.data.token)
-    //       resolve()
-    //     }).catch(error => {
-    //       reject(error)
-    //     })
-    //   })
-    // },
 
     // 登出
     LogOut({ commit, state }) {

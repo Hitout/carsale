@@ -22,8 +22,11 @@
               <el-radio label="女"/>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="年龄" prop="age">
-            <el-input v-model.number="ruleForm.age"/>
+          <!--<el-form-item label="年龄" prop="age">-->
+          <!--<el-input v-model.number="ruleForm.age"/>-->
+          <!--</el-form-item>-->
+          <el-form-item label="入职日期" prop="entryTime">
+            <el-date-picker v-model="ruleForm.entryTime" type="date" value-format="yyyy-MM-dd" placeholder="选择日期" style="width: 100%;"/>
           </el-form-item>
         </el-col>
         <el-col :xs="24" :sm="24" :lg="12" style="width: 400px; margin-left:50px;">
@@ -32,17 +35,14 @@
           </el-form-item>
           <el-form-item label="状态" prop="status">
             <el-select v-model="ruleForm.status" placeholder="请选择">
-              <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item"/>
+              <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
             </el-select>
           </el-form-item>
-          <el-form-item label="入职日期" prop="date">
-            <el-date-picker v-model="ruleForm.date" type="date" placeholder="选择日期" style="width: 100%;"/>
-          </el-form-item>
-          <el-form-item label="密码" prop="pass">
-            <el-input v-model="ruleForm.pass" type="password" autocomplete="off"/>
+          <el-form-item label="密码" prop="password">
+            <el-input v-model="ruleForm.password" type="password" auto-complete="off"/>
           </el-form-item>
           <el-form-item label="确认密码" prop="checkPass">
-            <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off"/>
+            <el-input v-model="ruleForm.checkPass" type="password" auto-complete="off"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -60,6 +60,12 @@
 
 <script>
 import { validateIdCard, validateAge, validateSalary } from '@/utils/validate'
+import { addEmployee } from '@/api/employee'
+
+const statusOptions = [
+  { key: '1', display_name: '在职' },
+  { key: '0', display_name: '已离职' }
+]
 
 export default {
   data() {
@@ -80,7 +86,7 @@ export default {
     var validatePass2 = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'))
-      } else if (value !== this.ruleForm.pass) {
+      } else if (value !== this.ruleForm.password) {
         callback(new Error('两次输入密码不一致!'))
       } else {
         callback()
@@ -91,15 +97,15 @@ export default {
         name: '',
         phone: '',
         idCard: '',
-        age: '',
+        // age: '',
         gender: undefined,
         salary: undefined,
-        date: '',
-        status: '',
-        pass: '',
+        entryTime: undefined,
+        status: '1',
+        password: '',
         checkPass: ''
       },
-      statusOptions: ['在职', '已离职'],
+      statusOptions,
       rules: {
         name: [
           { required: true, message: '请输入员工姓名', trigger: 'blur' }
@@ -113,8 +119,8 @@ export default {
         gender: [
           { required: true, message: '请选择员工性别', trigger: 'change' }
         ],
-        date: [
-          { type: 'date', required: true, message: '请选择入职日期', trigger: 'change' }
+        entryTime: [
+          { required: true, message: '请选择入职日期', trigger: 'change' }
         ],
         status: [
           { required: true, message: '请选择员工就职状态', trigger: 'blur' }
@@ -122,14 +128,14 @@ export default {
         salary: [
           { validator: validateSalary, required: true, trigger: 'blur' }
         ],
-        pass: [
+        password: [
           { validator: validatePass, required: true, trigger: 'blur' }
-        ],
-        checkPass: [
-          { validator: validatePass2, required: true, trigger: 'blur' }
         ],
         age: [
           { validator: validateAge, required: true, trigger: 'blur' }
+        ],
+        checkPass: [
+          { validator: validatePass2, required: true, trigger: 'blur' }
         ]
       }
     }
@@ -138,7 +144,24 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
+          addEmployee(this.ruleForm).then(response => {
+            if (response.data.code === 20000) {
+              this.$notify({
+                title: '成功',
+                message: '添加成功',
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '错误',
+                message: response.data.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
+            this.resetForm(formName)
+          })
         } else {
           console.log('error submit!!')
           return false

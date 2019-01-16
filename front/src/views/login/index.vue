@@ -26,6 +26,7 @@
           name="username"
           type="text"
           auto-complete="on"
+          required
         />
       </el-form-item>
 
@@ -53,18 +54,18 @@
 </template>
 
 <script>
-import { isvalidUsername } from '@/utils/validate'
+// import { isvalidUsername } from '@/utils/validate'
 
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
+    // const validateUsername = (rule, value, callback) => {
+    //   if (!isvalidUsername(value)) {
+    //     callback(new Error('Please enter the correct user name'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('The password can not be less than 6 digits'))
@@ -75,11 +76,11 @@ export default {
     return {
       loginForm: {
         roles: '销售',
-        username: 'editor',
-        password: '1111111'
+        username: '123456',
+        password: '123456'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        // username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       passwordType: 'password',
@@ -110,7 +111,16 @@ export default {
           this.loading = true
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
-            this.$router.push({ path: this.redirect || '/' })
+            if (this.$store.getters.code === 20000) {
+              this.$router.push({ path: this.redirect || '/' })
+            } else {
+              this.$notify({
+                title: '错误',
+                message: this.$store.getters.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
           }).catch(() => {
             this.loading = false
           })

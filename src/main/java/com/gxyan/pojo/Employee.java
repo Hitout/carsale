@@ -1,16 +1,20 @@
 package com.gxyan.pojo;
 
 import lombok.ToString;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @ToString
 public class Employee {
     private Integer id;
 
-    private Integer role;
+    private String role;
 
     private String name;
+
+    private String password;
 
     private String idCard;
 
@@ -18,22 +22,21 @@ public class Employee {
 
     private String gender;
 
-    private Integer age;
+    private BigDecimal salary;
 
-    private String salary;
-
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date entryTime;
 
     private String status;
 
-    public Employee(Integer id, Integer role, String name, String idCard, String phone, String gender, Integer age, String salary, Date entryTime, String status) {
+    public Employee(Integer id, String role, String name, String password, String idCard, String phone, String gender, BigDecimal salary, Date entryTime, String status) {
         this.id = id;
         this.role = role;
         this.name = name;
+        this.password = password;
         this.idCard = idCard;
         this.phone = phone;
         this.gender = gender;
-        this.age = age;
         this.salary = salary;
         this.entryTime = entryTime;
         this.status = status;
@@ -51,11 +54,11 @@ public class Employee {
         this.id = id;
     }
 
-    public Integer getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Integer role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
@@ -65,6 +68,14 @@ public class Employee {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password == null ? null : password.trim();
     }
 
     public String getIdCard() {
@@ -91,20 +102,12 @@ public class Employee {
         this.gender = gender == null ? null : gender.trim();
     }
 
-    public Integer getAge() {
-        return age;
-    }
-
-    public void setAge(Integer age) {
-        this.age = age;
-    }
-
-    public String getSalary() {
+    public BigDecimal getSalary() {
         return salary;
     }
 
-    public void setSalary(String salary) {
-        this.salary = salary == null ? null : salary.trim();
+    public void setSalary(BigDecimal salary) {
+        this.salary = salary;
     }
 
     public Date getEntryTime() {

@@ -5,10 +5,11 @@
     <constructor>
       <idArg column="brand_id" javaType="java.lang.Integer" jdbcType="INTEGER" />
       <arg column="brand_name" javaType="java.lang.String" jdbcType="VARCHAR" />
+      <arg column="status" javaType="java.lang.String" jdbcType="VARCHAR" />
     </constructor>
   </resultMap>
   <sql id="Base_Column_List">
-    brand_id, brand_name
+    brand_id, brand_name, status
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -16,13 +17,27 @@
     from brand
     where brand_id = #{brandId,jdbcType=INTEGER}
   </select>
+  <select id="getBrand" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from brand
+    where status = 1
+  </select>
+  <select id="selectByBrandName" resultMap="BaseResultMap" parameterType="string">
+    select
+    <include refid="Base_Column_List"/>
+    from brand
+    where brand_name = #{brandName}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from brand
     where brand_id = #{brandId,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.gxyan.pojo.Brand">
-    insert into brand (brand_id, brand_name)
-    values (#{brandId,jdbcType=INTEGER}, #{brandName,jdbcType=VARCHAR})
+    insert into brand (brand_id, brand_name, status
+      )
+    values (#{brandId,jdbcType=INTEGER}, #{brandName,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.gxyan.pojo.Brand">
     insert into brand
@@ -33,6 +48,9 @@
       <if test="brandName != null">
         brand_name,
       </if>
+      <if test="status != null">
+        status,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="brandId != null">
@@ -40,6 +58,9 @@
       </if>
       <if test="brandName != null">
         #{brandName,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -49,12 +70,16 @@
       <if test="brandName != null">
         brand_name = #{brandName,jdbcType=VARCHAR},
       </if>
+      <if test="status != null">
+        status = #{status,jdbcType=VARCHAR},
+      </if>
     </set>
     where brand_id = #{brandId,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.gxyan.pojo.Brand">
     update brand
-    set brand_name = #{brandName,jdbcType=VARCHAR}
+    set brand_name = #{brandName,jdbcType=VARCHAR},
+      status = #{status,jdbcType=VARCHAR}
     where brand_id = #{brandId,jdbcType=INTEGER}
   </update>
 </mapper>

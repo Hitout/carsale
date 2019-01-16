@@ -1,9 +1,12 @@
 package com.gxyan.pojo;
 
+import lombok.ToString;
+
 import java.util.Date;
 
+@ToString
 public class Customer {
-    private Integer id;
+    private Long id;
 
     private String name;
 
@@ -13,7 +16,7 @@ public class Customer {
 
     private Date createTime;
 
-    public Customer(Integer id, String name, String phone, String idCard, Date createTime) {
+    public Customer(Long id, String name, String phone, String idCard, Date createTime) {
         this.id = id;
         this.name = name;
         this.phone = phone;
@@ -25,11 +28,11 @@ public class Customer {
         super();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

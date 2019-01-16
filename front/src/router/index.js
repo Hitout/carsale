@@ -138,8 +138,8 @@ export const asyncRouterMap = [
     alwaysShow: true,
     meta: {
       title: '库存管理',
-      icon: 'store',
-      roles: ['admin', 'editor']
+      // roles: ['admin', 'editor'],
+      icon: 'store'
     },
     children: [
       {

@@ -24,19 +24,10 @@
 
 <script>
 import { validateIdCard } from '@/utils/validate'
+import { addCustomer } from '@/api/customer'
 
 export default {
   data() {
-    // var validateIdCard = (rule, value, callback) => {
-    //   if (value === '' || value === undefined) {
-    //     callback(new Error('请输入身份证号'))
-    //   } else {
-    //     if (!validateIdCard(value)) {
-    //       callback(new Error('请输入正确的身份证号'))
-    //     }
-    //     callback()
-    //   }
-    // }
     return {
       ruleForm: {
         name: '',
@@ -60,7 +51,24 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!')
+          addCustomer(this.ruleForm).then(response => {
+            if (response.data.code === 20000) {
+              this.$notify({
+                title: '成功',
+                message: '添加成功',
+                type: 'success',
+                duration: 2000
+              })
+            } else {
+              this.$notify({
+                title: '错误',
+                message: response.data.message,
+                type: 'error',
+                duration: 2000
+              })
+            }
+            this.resetForm(formName)
+          })
         } else {
           console.log('error submit!!')
           return false
