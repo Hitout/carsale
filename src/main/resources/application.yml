@@ -14,3 +14,6 @@ pagehelper:
     reasonable: true
     supportMethodsArguments: true
     params: count=countSql
+jwt:
+    expiration: 3600
+    header: Authorization

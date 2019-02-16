@@ -92,7 +92,7 @@
       ) i ON i.date = b.date
       INNER JOIN (
         -- 支出
-        SELECT date,IFNULL(SUM((repertory+num)*price),0) expenditure FROM base_month
+        SELECT date,IFNULL(SUM((repertory+IFNULL(num,0))*price),0) expenditure FROM base_month
           LEFT JOIN car ON date = date_format(create_time,'%Y-%m')
           LEFT JOIN (
             SELECT car_id,SUM(car_number) num FROM order_details
