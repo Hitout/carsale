@@ -58,7 +58,7 @@
     select e.`name`,SUM(total_price) value from `order`
     INNER JOIN employee e on `order`.employee_id = e.id
     <![CDATA[
-    where TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) < 2 and TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) > 1
+    where TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) < 2 and TO_DAYS( NOW( ) ) - TO_DAYS(pay_time) >= 1
     ]]>
     GROUP BY employee_id
   </select>
