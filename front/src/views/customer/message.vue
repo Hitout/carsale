@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.id" placeholder="客户编号" style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.name" placeholder="客户姓名" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.phone" placeholder="手机号" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input v-model="listQuery.idCard" placeholder="身份证号" style="width: 190px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.id" placeholder="客户编号" clearable style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.name" placeholder="客户姓名" clearable style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.phone" placeholder="手机号" clearable style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.idCard" placeholder="身份证号" clearable style="width: 190px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
     </div>
@@ -135,11 +135,12 @@ export default {
             type: 'error'
           })
         }
+        this.listLoading = false
 
         // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+        // setTimeout(() => {
+        //   this.listLoading = false
+        // }, 1.5 * 1000)
       })
     },
     handleFilter() {

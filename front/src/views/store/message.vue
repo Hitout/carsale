@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.carId" placeholder="车辆编号" clearable style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input v-model="listQuery.id" placeholder="车辆编号" clearable style="width: 160px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-select v-model="listQuery.brandId" class="filter-item" clearable placeholder="品牌" style="width: 160px;" @change="changeSeries" @keyup.enter.native="handleFilter">
         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"/>
       </el-select>
@@ -231,11 +231,12 @@ export default {
             type: 'error'
           })
         }
+        this.listLoading = false
 
         // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+        // setTimeout(() => {
+        //   this.listLoading = false
+        // }, 0.5 * 1000)
       })
     },
     changeSeries() {
