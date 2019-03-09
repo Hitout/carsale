@@ -27,7 +27,7 @@ public class ChartController {
     private IChartService chartService;
 
     /**
-     * 获取 员工月销量报表 数据
+     * 获取 全部员工的月销量报表 数据
      * @param date
      * @return
      */
@@ -73,5 +73,10 @@ public class ChartController {
     @RequestMapping(value = "getIndexSales", method = RequestMethod.GET)
     public ServerResponse getIndexSales(Integer id) {
         return chartService.getIndexSales(id);
+    }
+
+    @RequestMapping(value = "getEmpSalesChart", method = RequestMethod.GET)
+    public ServerResponse getEmpSalesChart(Integer id, String date) {
+        return chartService.getEmpSalesChart(id, date);
     }
 }

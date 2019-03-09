@@ -165,28 +165,37 @@ export const asyncRouterMap = [
     name: 'Charts',
     meta: {
       title: '财务报表',
-      icon: 'chart',
-      roles: ['admin']
+      icon: 'chart'
     },
     children: [
       {
         path: 'employee',
-        component: () => import('@/views/charts/employee'),
+        component: () => import('@/views/charts/admin/employee'),
         name: 'employee',
-        meta: { title: '员工报表', noCache: true }
+        meta: {
+          title: '员工报表',
+          // noCache: true,
+          roles: ['admin']
+        }
       },
       {
         path: 'sales',
-        component: () => import('@/views/charts/sales'),
+        component: () => import('@/views/charts/admin/sales'),
         name: 'sales',
-        meta: { title: '销量报表', noCache: true }
+        meta: {
+          title: '销量报表',
+          // noCache: true,
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'personal',
+        component: () => import('@/views/charts/editor/employee'),
+        name: 'personal',
+        meta: {
+          title: '个人月报表'
+        }
       }
-      // {
-      //   path: 'test',
-      //   component: () => import('@/views/charts/testChart'),
-      //   name: 'test',
-      //   meta: { title: '测试', noCache: true }
-      // }
     ]
   },
   {

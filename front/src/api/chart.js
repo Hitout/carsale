@@ -8,6 +8,14 @@ export function fetchEmpChart(date) {
   })
 }
 
+export function fetchEmpSalesChart(id, date) {
+  return request({
+    url: '/chart/getEmpSalesChart',
+    method: 'get',
+    params: { id, date }
+  })
+}
+
 export function fetchIndexChart() {
   return request({
     url: '/chart/getIndexChart',

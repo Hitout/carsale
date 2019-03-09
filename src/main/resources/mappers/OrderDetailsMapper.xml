@@ -111,6 +111,19 @@
     WHERE DATE_FORMAT(pay_time,'%Y-%m') = DATE_FORMAT(NOW(),'%Y-%m')
           AND employee_id = #{id}
   </select>
+  <select id="selectEmpChart" resultType="com.gxyan.vo.EmpChart">
+    SELECT CONCAT_WS('/',brand.brand_name,series.series_name) name, SUM(num*sale_price) value FROM car
+      INNER JOIN (
+                   SELECT car_id,SUM(car_number) num FROM order_details
+                     INNER JOIN `order` ON order_details.order_id = `order`.id
+                   WHERE DATE_FORMAT(pay_time,'%Y-%m') = #{date}
+                         AND employee_id = #{id}
+                   GROUP BY car_id
+                 ) o ON car.id = o.car_id
+      INNER JOIN series ON car.series_id = series.series_id
+      INNER JOIN brand ON series.brand_id = brand.brand_id
+    GROUP BY series.series_id
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from order_details
     where id = #{id,jdbcType=VARCHAR}

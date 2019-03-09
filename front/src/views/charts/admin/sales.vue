@@ -93,7 +93,7 @@ export default {
       if (this.start === null || this.end === null) {
         return
       }
-      console.log(this.start + ' --- ' + this.end)
+      // console.log(this.start + ' --- ' + this.end)
       fetchSalesChart(
         this.start,
         this.end

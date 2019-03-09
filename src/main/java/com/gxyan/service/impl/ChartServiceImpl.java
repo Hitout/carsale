@@ -70,4 +70,13 @@ public class ChartServiceImpl implements IChartService {
         }
         return ServerResponse.createByErrorMessage("木有数据哦");
     }
+
+    @Override
+    public ServerResponse getEmpSalesChart(Integer id, String date) {
+        List <EmpChart> chartData = detailsMapper.selectEmpChart(id, date);
+        if (chartData != null) {
+            return ServerResponse.createBySuccess(chartData);
+        }
+        return ServerResponse.createByErrorMessage("木有数据哦");
+    }
 }

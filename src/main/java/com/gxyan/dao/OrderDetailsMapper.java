@@ -30,4 +30,6 @@ public interface OrderDetailsMapper {
     List<SalesChart> selectSalesChart(@Param("start") String start, @Param("end") String end);
 
     IndexSales selectIndexSales(Integer id);
+
+    List<EmpChart> selectEmpChart(@Param("id") Integer id, @Param("date") String date);
 }

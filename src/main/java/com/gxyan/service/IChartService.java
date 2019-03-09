@@ -19,4 +19,6 @@ public interface IChartService {
     ServerResponse getSalesChart(String start, String end);
 
     ServerResponse getIndexSales(Integer id);
+
+    ServerResponse getEmpSalesChart(Integer id, String date);
 }
