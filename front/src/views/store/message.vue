@@ -85,10 +85,10 @@
           <el-input v-model="temp.color"/>
         </el-form-item>
         <el-form-item label="进价" prop="price">
-          <el-input v-model="temp.price"/>
+          <el-input v-model.number="temp.price"/>
         </el-form-item>
         <el-form-item label="售价" prop="salePrice">
-          <el-input v-model="temp.salePrice"/>
+          <el-input v-model.number="temp.salePrice"/>
         </el-form-item>
         <el-form-item label="数量" prop="repertory">
           <el-input-number v-model="temp.repertory" :min="0"/>
