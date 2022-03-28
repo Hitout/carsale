@@ -15,9 +15,3 @@
 1. 安装好node环境
 2. 在front目录下运行`npm install`安装所需要的包
 3. 在front目录下运行`npm run dev`，访问[localhost:9527](localhost:9527)
-
-### 打赏
-<div align="center">
-    <img width="350px" height="480px" src="https://hitout.github.io/file/img/Wechat_Pay.png"/>
-    <img width="350px" height="480px" src="https://hitout.github.io/file/img/Ali_Pay.jpg"/>
-</div>
